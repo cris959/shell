@@ -143,7 +143,8 @@ public class AnalisisServiceImpl implements AnalisisService{
 
         log.info("🔍 Consultando historial de análisis para el usuario: {}", usuarioId);
 
-        return analisisRepository.findByUsuarioId(usuarioId.trim()).stream()
+        //                        .findByUsuarioId
+        return analisisRepository.findByUsuarioIdWithRecomendaciones(usuarioId.trim()).stream()
                 .map(entidad -> mapToAnalisisOutputDTO(entidad))
                 .toList();
     }

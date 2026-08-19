@@ -1,0 +1,327 @@
+{
+  "info": {
+    "_postman_id": "b51ffd66-642f-405d-8958-8a639ed3d1cd",
+    "name": "Team17",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49502225",
+    "_collection_link": "https://go.postman.co/collection/49502225-b51ffd66-642f-405d-8958-8a639ed3d1cd?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "analisis",
+      "item": [
+        {
+          "name": "Generar Analisis Financiero",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"usuario_id\": \"USR-1001\",\r\n  \"ingreso_mensual\": 650000.00,\r\n  \"ahorro_actual\": 150000.00,\r\n  \"meta_ahorro\": 300000.00,\r\n  \"nivel_endeudamiento\": 2,\r\n  \"frecuencia_ahorro\": \"MENSUAL\",\r\n  \"descripcion\": \"Supermercado Coto compras semana\",\r\n  \"valor\": 42500.00\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_back}}/api/v1/analisis/perfil/USR-1001",
+              "host": [
+                "{{url_back}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analisis",
+                "perfil",
+                "USR-1001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Historial de Analisis",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"usuario_id\": \"USR-1001\",\r\n  \"ingreso_mensual\": 650000.00,\r\n  \"nivel_endeudamiento\": 2,\r\n  \"frecuencia_ahorro\": \"MENSUAL\",\r\n  \"descripcion\": \"Supermercado Coto compras semana\",\r\n  \"valor\": 42500.00\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_back}}/api/v1/analisis/usuario/USR-1001",
+              "host": [
+                "{{url_back}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analisis",
+                "usuario",
+                "USR-1001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cargar y Analizar CSV",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "uuid": "0783bdd1-7c95-4d30-a3f3-17555e6fe274",
+                  "src": "/C:/Desarrollo/movimientos.csv"
+                },
+                {
+                  "key": "datos",
+                  "value": "{\n  \"ingresoMensual\": 500000,\n  \"ahorroActual\": 150000,\n  \"metaAhorro\": 300000,\n  \"nivelEndeudamiento\": 15\n}",
+                  "type": "text",
+                  "uuid": "f65070be-83a1-439a-bf29-b8962471992d",
+                  "contentType": "application/json",
+                  "disabled": true
+                },
+                {
+                  "key": "ingresoMensual",
+                  "value": "500000",
+                  "type": "text",
+                  "uuid": "da074ebb-9be0-4c65-aa4d-91adc6e92276"
+                },
+                {
+                  "key": "ahorroActual",
+                  "value": "150000",
+                  "type": "text",
+                  "uuid": "8927f129-fb41-4d06-8942-1f21b98c80d1"
+                },
+                {
+                  "key": "metaAhorro",
+                  "value": "300000",
+                  "type": "text",
+                  "uuid": "a76c19ec-c276-4a21-987f-ae6cc34a8e99"
+                },
+                {
+                  "key": "nivelEndeudamiento",
+                  "value": "5",
+                  "type": "text",
+                  "uuid": "52d85c72-0953-4c60-82fc-c2a8e42603f1"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url_back}}/api/v1/analisis/csv/USR-1001",
+              "host": [
+                "{{url_back}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analisis",
+                "csv",
+                "USR-1001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[PYTHON IA] POST Analizar Perfil (Interno)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"usuario_id\": \"USR-1001\",\r\n    \"ingreso_mensual\": 650000.00,\r\n    \"nivel_endeudamiento\": 2,\r\n    \"frecuencia_ahorro\": \"MENSUAL\",\r\n    \"descripcion\": \"Análisis de prueba inicial\",\r\n    \"valor\": 42500.00,\r\n    \"ahorro_actual\": 120000.00,\r\n    \"meta_ahorro\": 500000.00,\r\n    \"monto_proxima_meta\": 50000.00,\r\n    \"historial_transacciones\": [\r\n      {\r\n        \"monto\": 420.00,\r\n        \"descripcion\": \"Supermercado Coto compras semana\",\r\n        \"categoria\": \"ALIMENTACION\"\r\n      },\r\n      {\r\n        \"monto\": 300.00,\r\n        \"descripcion\": \"Carga tarjeta Red Bus\",\r\n        \"categoria\": \"TRANSPORTE\"\r\n      }\r\n    ]\r\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_data}}/api/v1/analizar-perfil",
+              "host": [
+                "{{url_data}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "analizar-perfil"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "transacciones",
+      "item": [
+        {
+          "name": "Crear Transaccion",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"usuario_id\": \"USR-1001\",\r\n  \"descripcion\": \"Pago de servicio de Internet\",\r\n  \"monto\": 18500.00,\r\n  \"tipo\": \"EGRESO\",\r\n  \"categoria\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_back}}/api/v1/transacciones",
+              "host": [
+                "{{url_back}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transacciones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Transaccion (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"usuario_id\": \"USR-1001\",\r\n  \"descripcion\": \"Pago de servicio de Internet\",\r\n  \"monto\": 18500.00,\r\n  \"tipo\": \"EGRESO\",\r\n  \"categoria\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_back}}/api/v1/transacciones/1",
+              "host": [
+                "{{url_back}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transacciones",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Transaccion",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"descripcion\": \"Pago de fibra optica\",\r\n  \"monto\": 21500.00,\r\n  \"tipo\": \"EGRESO\",\r\n  \"categoria\": \"servicios\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_back}}/api/v1/transacciones/1",
+              "host": [
+                "{{url_back}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transacciones",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Transacciones por Usuario",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_back}}/api/v1/transacciones/usuario/USR-1001",
+              "host": [
+                "{{url_back}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transacciones",
+                "usuario",
+                "USR-1001"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Transaccion por id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"usuario_id\": \"USR-1001\",\r\n  \"descripcion\": \"Pago de servicio de Internet\",\r\n  \"monto\": 18500.00,\r\n  \"tipo\": \"EGRESO\",\r\n  \"categoria\": \"\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_back}}/api/v1/transacciones/1",
+              "host": [
+                "{{url_back}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "transacciones",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
