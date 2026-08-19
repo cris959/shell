@@ -1,0 +1,25 @@
+# Entorno virtual
+.venv/
+venv/
+ENV/
+
+# Variables de entorno y secretos (¡NUNCA SUBIR A GIT!)
+.env
+!.env.example
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# IDEs y Editores
+.vscode/
+.idea/
+
+# Docker / Logs (opcional)
+*.log
+
+# dataset
+*.csv
+notebooks/raw_data/
