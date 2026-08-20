@@ -1,4 +1,13 @@
 ﻿## 🚀 Backend - Sistema de Gestión y Salud Financiera con IA (Team 17)
+![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-OpenAPI_3.0-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Version](https://img.shields.io/badge/Version-v1.0.0-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
 API RESTful desarrollada en Java con **Spring Boot 3**, diseñada para la gestión de transacciones financieras personales, ingestión masiva de datos mediante archivos CSV y evaluación automatizada de perfiles de riesgo respaldada por Inteligencia Artificial y Machine Learning.
 
 El sistema funciona como un orquestador central: gestiona la persistencia de datos, aplica reglas de negocio, centraliza el manejo global de excepciones y se comunica de manera transparente con un microservicio analítico en Python (FastAPI) que ejecuta modelos de NLP y Random Forest.
