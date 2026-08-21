@@ -283,7 +283,63 @@ Dashboard Financiero: Mostrar indicadores de estado (ej. "Conservador", "Moderad
 
 Manejo de Estados de Carga: Implementar skeletons o loaders interactivos mientras el backend realiza la inferencia con el servicio NLP.
 
-## ☕ Equipo Backend (Siguientes Pasos)
-1. Implementación de capa de seguridad con Spring Security & JWT.
+## 🔒 Arquitectura de Seguridad (JWT)
 
-2. Configuración de despliegue en ambiente cloud (Oracle Cloud Infrastructure - OCI).
+El proyecto utiliza **Spring Security** junto con **JSON Web Tokens (JWT)** para gestionar el acceso de forma *stateless*.
+
+````mermaid
+flowchart TD
+   Client([Cliente / Postman / Frontend])
+
+   subgraph SecurityConfig["Configuración Global: SecurityConfig"]
+      direction TB
+      PermitAll["Rutas públicas<br/>/api/v1/auth/**<br/>/swagger-ui/**"]
+      Authenticated["Rutas protegidas<br/>/api/v1/transacciones/**"]
+   end
+
+   subgraph AuthFilter["Filtro por solicitud: JwtAuthenticationFilter"]
+      direction TB
+      ExtractToken["Extraer header<br/>Authorization: Bearer &lt;token&gt;"]
+      ValidateToken{"¿Token válido?"}
+      SetContext["Establecer Authentication<br/>en SecurityContextHolder"]
+   end
+
+   subgraph Services["Lógica de autenticación y negocio"]
+      direction TB
+      JwtProvider["JwtTokenProvider<br/>Firma y validación HS256"]
+      AuthService["AuthService<br/>Login y registro"]
+      CustomUserDetailsService["AuthenticationService<br/>UserDetailsService"]
+   end
+
+   subgraph Persistence["Persistencia"]
+      direction TB
+      UserRepo[("UsuarioRepository")]
+      PerfilRepo[("PerfilRepository")]
+   end
+
+   ProtectedController["Controlador del dominio<br/>TransaccionController"]
+   Block["401 Unauthorized"]
+
+%% Flujo público: login
+   Client -->|"1. POST /api/v1/auth/login"| SecurityConfig
+   SecurityConfig -->|"Permitido"| AuthService
+   AuthService -->|"2. Busca credenciales"| UserRepo
+   AuthService -->|"3. Genera JWT"| JwtProvider
+   JwtProvider -->|"4. Retorna AuthResponse con JWT"| Client
+
+%% Flujo protegido
+   Client -->|"1. GET /api/v1/transacciones<br/>(Header: Bearer Token)"| SecurityConfig
+   SecurityConfig -->|"Requiere autenticación"| AuthFilter
+   AuthFilter --> ExtractToken
+   ExtractToken -->|"2. Valida firma y expiración"| JwtProvider
+   JwtProvider --> ValidateToken
+
+   ValidateToken -->|"Sí"| CustomUserDetailsService
+   CustomUserDetailsService -->|"3. Carga usuario"| UserRepo
+   CustomUserDetailsService --> SetContext
+   SetContext -->|"4. Acceso permitido"| ProtectedController
+
+   ValidateToken -->|"No / sin token"| Block
+````
+## ☕ Equipo Backend (Siguientes Pasos)
+1. Configuración de despliegue en ambiente cloud (Oracle Cloud Infrastructure - OCI).
