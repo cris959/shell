@@ -1,21 +1,29 @@
 -- =================================================================
+-- PRE-CARGA DE USUARIOS (Hash BCrypt real de 60 caracteres)
+-- =================================================================
+
+INSERT INTO usuarios (id, nombre, email, password, activo)
+VALUES
+    (1, 'Christian Doe', 'christian.doe@ejemplo.com', '$2a$12$Ui8Oj8K4kw0LcpI8j4.ECeuxSIaMvkG1qv0PXQ3mlBrrcijZKbd9O', true),
+    (2, 'Lionel Messi', 'lionel.messi@ejemplo.com', '$2a$12$Ui8Oj8K4kw0LcpI8j4.ECeuxSIaMvkG1qv0PXQ3mlBrrcijZKbd9O', true)
+    ON CONFLICT (id) DO UPDATE SET password = EXCLUDED.password;
+
+SELECT setval(pg_get_serial_sequence('usuarios', 'id'), (SELECT COALESCE(MAX(id), 1) FROM usuarios));
+-- =================================================================
 -- 1. CORREGIR ESTRUCTURA DE TABLA Y REGISTROS PREVIOS
 -- =================================================================
 
--- Actualizar registros existentes que quedaron en NULL
 UPDATE transacciones
 SET activo = true
 WHERE activo IS NULL;
 
--- Asegurar restricción NOT NULL y DEFAULT true para transacciones
 ALTER TABLE transacciones
     ALTER COLUMN activo SET DEFAULT true,
 ALTER COLUMN activo SET NOT NULL;
 
 
 -- =================================================================
--- 2. INSERTAR ANÁLISIS CON SUS RECOMENDACIONES
--- (Alineado estrictamente a AnalisisFinanciero.java)
+-- 2. INSERTAR ANÁLISIS CON SUS RECOMENDACIONES (Para Christian Doe - ID 1)
 -- =================================================================
 
 WITH nuevo_analisis AS (
@@ -35,7 +43,7 @@ INSERT INTO analisis_financiero (
     meses_para_meta,
     fecha_creacion
 ) VALUES (
-    'USR-1001',
+    1, -- Christian Doe
     650000.00,
     2,
     'MENSUAL',
@@ -43,11 +51,11 @@ INSERT INTO analisis_financiero (
     42500.00,
     'Moderado',
     0.85,
-    42500.00,   -- total_gastado
-    150000.00,  -- capacidad_ahorro_mensual
-    23.07,      -- porcentaje_tasa_ahorro
-    50.00,      -- progreso_meta_ahorro
-    6.00,       -- meses_para_meta
+    42500.00,
+    150000.00,
+    23.07,
+    50.00,
+    6.00,
     CURRENT_TIMESTAMP
     ) RETURNING id
     )
@@ -60,18 +68,22 @@ FROM nuevo_analisis;
 
 
 -- =================================================================
--- 3. INSERTAR RESUMEN DE GASTOS (Map<String, Double> en Java)
+-- 3. INSERTAR RESUMEN DE GASTOS
 -- =================================================================
 
 INSERT INTO analisis_resumen_gastos (analisis_id, categoria, monto)
-VALUES
-    (1, 'ALIMENTACION', 30000.00),
-    (1, 'GASTOS_GENERALES', 12500.00)
-    ON CONFLICT DO NOTHING;
+SELECT id, 'ALIMENTACION', 30000.00 FROM analisis_financiero ORDER BY id DESC LIMIT 1;
+
+INSERT INTO analisis_resumen_gastos (analisis_id, categoria, monto)
+SELECT id, 'GASTOS_GENERALES', 12500.00 FROM analisis_financiero ORDER BY id DESC LIMIT 1;
+
 
 -- =================================================================
--- 4. INSERTAR TRANSACCIÓN DE PRUEBA
+-- 4. INSERTAR TRANSACCIONES DE PRUEBA
 -- =================================================================
 
 INSERT INTO transacciones (usuario_id, descripcion, monto, tipo, categoria, activo, fecha_transaccion)
-VALUES ('USR-1001', 'Compra en Farmacia', 8500.50, 'EGRESO', 'Salud', true, CURRENT_TIMESTAMP);
+VALUES (1, 'Compra en Farmacia', 8500.50, 'EGRESO', 'SALUD', true, CURRENT_TIMESTAMP);
+
+INSERT INTO transacciones (usuario_id, descripcion, monto, tipo, categoria, activo, fecha_transaccion)
+VALUES (2, 'Equipamiento Deportivo', 120000.00, 'EGRESO', 'DEPORTES', true, CURRENT_TIMESTAMP);

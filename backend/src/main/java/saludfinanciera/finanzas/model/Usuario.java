@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,15 +14,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-
 @Entity(name = "Usuario")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "usuarios")
-@SQLDelete(sql = "UPDATE usuarios SET activo = 0 WHERE id = ?") // Opcional: automatiza el borrado lógico
-@Where(clause = "activo = 1") // Filtra automáticamente todos los SELECT
+@SQLDelete(sql = "UPDATE usuarios SET activo = false WHERE id = ?")
+@SQLRestriction("activo = true")
 public class Usuario implements UserDetails {
 
     @Id
@@ -35,10 +34,10 @@ public class Usuario implements UserDetails {
 
     private String password;
 
-    @Column(name = "activo", nullable = false)
-    private Boolean activo = true; // Por defecto está activo
+    @Column(name = "activo", nullable = false, columnDefinition = "boolean default true")
+    private Boolean activo = true;
 
-    @ManyToOne(fetch = FetchType.EAGER) // EAGER para tener el rol disponible al autenticar
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "perfil_id")
     private Perfil perfil;
 
@@ -52,30 +51,24 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return this.email;
     }
+
     @Override
     public String getPassword() {
-        return password;
+        return this.password;
     }
+
+    // --- MÉTODOS USERDETAILS CORREGIDOS ---
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
+        return true; // Podés agregar @SuppressWarnings("SameReturnValue") si querés silenciar la advertencia de valor fijo
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        // Usa el valor del campo 'activo' en lugar de hardcodear 'true'
+        return Boolean.TRUE.equals(this.activo);
     }
 }

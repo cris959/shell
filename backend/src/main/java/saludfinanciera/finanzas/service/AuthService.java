@@ -59,6 +59,22 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        // --- LOGS DE DIAGNÓSTICO ---
+        Usuario usuarioBD = (Usuario) usuarioRepository.findByEmail(request.email())
+                .orElse(null);
+
+        if (usuarioBD == null) {
+            System.out.println("❌ DIAGNÓSTICO: El usuario no existe en la BD o 'activo' es false (por @SQLRestriction).");
+        } else {
+            boolean coincide = passwordEncoder.matches(request.password(), usuarioBD.getPassword());
+            System.out.println("🔍 DIAGNÓSTICO:");
+            System.out.println("   - Email: " + request.email());
+            System.out.println("   - Clave recibida (plana): " + request.password());
+            System.out.println("   - Hash en BD: " + usuarioBD.getPassword());
+            System.out.println("   - ¿Coinciden?: " + (coincide ? "✅ SÍ" : "❌ NO"));
+        }
+        // ---------------------------
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
