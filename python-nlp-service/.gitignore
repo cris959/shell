@@ -1,0 +1,21 @@
+# Entorno virtual
+.venv/
+venv/
+ENV/
+
+# Variables de entorno y secretos (¡NUNCA SUBIR A GIT!)
+.env
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.pyc
+
+# IDEs y Editores
+.vscode/
+.idea/
+
+# Docker / Logs (opcional)
+*.log
