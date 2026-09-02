@@ -20,8 +20,9 @@ backend/.settings/
 # 3. Microservicio Python (FastAPI)
 # ==========================================
 python-nlp-service/__pycache__/
-python-nlp-service/*.pyc
+python-nlp-service/**/*.pyc
 python-nlp-service/.venv/
+python-nlp-service/.venv-*/
 python-nlp-service/venv/
 python-nlp-service/.pytest_cache/
 
@@ -32,5 +33,7 @@ python-nlp-service/.pytest_cache/
 .idea/
 *.DS_Store
 Thumbs.db
-__pycache__/
-*.pyc
+**/__pycache__/
+**/*.pyc
+.venv/
+.venv-*/
