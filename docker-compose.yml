@@ -17,7 +17,7 @@ services:
       - app-network
   # Comentado temporalmente hasta que esté la carpeta python-nlp-service
   python-nlp:
-    build: ../python-nlp-service
+    build: ./python-nlp-service
     container_name: python_nlp_api
     ports:
       - "8000:8000"
