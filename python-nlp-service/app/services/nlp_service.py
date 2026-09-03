@@ -54,7 +54,7 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
     }}
     """
 
-    # 3. Llamada segura a Groq con modelo activo
+    # 3. Llamada segura a Groq con el modelo activo correcto
     try:
         client = Groq(api_key=api_key)
 
@@ -69,7 +69,7 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
                     "content": prompt,
                 }
             ],
-            model="llama-3.3-70b-versatile",
+            model="openai/gpt-oss-120b",
             response_format={"type": "json_object"}
         )
 
