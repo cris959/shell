@@ -20,7 +20,7 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
             meses_para_meta=0.0
         )
 
-    # 2. Formatear el historial de transacciones para el prompt usando el nombre correcto
+    # 2. Formatear el historial de transacciones para el prompt
     transacciones_texto = "\n".join([
         f"- Tipo: {t.tipo}, Categoría: {t.categoria}, Monto: ${t.monto}, Descripción: {t.descripcion}"
         for t in data.historial_transacciones
@@ -69,7 +69,7 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
                     "content": prompt,
                 }
             ],
-            model="llama-3.3-70b-versatile",  # Modelo estable y activo en Groq
+            model="llama-3.3-70b-versatile",
             response_format={"type": "json_object"}
         )
 
