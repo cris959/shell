@@ -69,7 +69,7 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
                     "content": prompt,
                 }
             ],
-            model="llama-3.3-70b-versatile",
+            model="llama3-70b-8192", # llama3-70b-8192
             response_format={"type": "json_object"}
         )
 
