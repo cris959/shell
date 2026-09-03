@@ -58,20 +58,20 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
     try:
         client = Groq(api_key=api_key)
 
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Eres un asistente financiero experto que responde exclusivamente en formato JSON estructurado válido."
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            model="llama3-70b-8192", # llama3-70b-8192
-            response_format={"type": "json_object"}
-        )
+     chat_completion = client.chat.completions.create(
+                 messages=[
+                     {
+                         "role": "system",
+                         "content": "Eres un asistente financiero experto que responde exclusivamente en formato JSON estructurado válido."
+                     },
+                     {
+                         "role": "user",
+                         "content": prompt,
+                     }
+                 ],
+                 model="openai/gpt-oss-120b",  # <--- Cambiado al modelo activo actual de Groq
+                 response_format={"type": "json_object"}
+             )
 
         contenido_json = chat_completion.choices[0].message.content
         return AnalisisOutputDTO.model_validate_json(contenido_json)
