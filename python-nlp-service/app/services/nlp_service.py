@@ -9,29 +9,48 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
 
     if not api_key:
         return AnalisisOutputDTO(
-            diagnostico="[ERROR] La GROQ_API_KEY no está configurada correctamente en el .env",
-            nivel_riesgo="ALTO",
-            recomendaciones=["Revisar el archivo .env en la raíz del proyecto."]
+            perfil_financiero="ERROR CONFIG",
+            probabilidad=0.0,
+            resumen_gastos={},
+            recomendaciones=["Revisar el archivo .env en la raíz del proyecto para configurar la GROQ_API_KEY."],
+            total_gastado=0.0,
+            capacidad_ahorro_mensual=0.0,
+            porcentaje_tasa_ahorro=0.0,
+            progreso_meta_ahorro=0.0,
+            meses_para_meta=0.0
         )
 
-    # 2. Formatear transacciones para el prompt
+    # 2. Formatear el historial de transacciones para el prompt usando el nombre correcto
     transacciones_texto = "\n".join([
-        f"- Categoría: {t.categoria}, Monto: ${t.monto}, Descripción: {t.descripcion}"
-        for t in data.transacciones
-    ]) if data.transacciones else "Sin transacciones registradas"
+        f"- Tipo: {t.tipo}, Categoría: {t.categoria}, Monto: ${t.monto}, Descripción: {t.descripcion}"
+        for t in data.historial_transacciones
+    ]) if data.historial_transacciones else "Sin transacciones registradas"
 
     prompt = f"""
-    Eres un experto asesor financiero. Analiza los siguientes datos:
-    - Ingresos totales: ${data.ingresos_totales}
-    - Transacciones:
+    Eres un experto asesor financiero. Analiza los siguientes datos del usuario:
+    - Ingreso mensual: ${data.ingreso_mensual}
+    - Ahorro actual: ${data.ahorro_actual}
+    - Nivel de endeudamiento (0-100): {data.nivel_endeudamiento}
+    - Frecuencia de ahorro: {data.frecuencia_ahorro}
+    - Meta/Descripción del análisis: {data.descripcion}
+    - Valor objetivo de la meta: ${data.valor}
+    - Historial de transacciones:
     {transacciones_texto}
 
-    Genera un diagnóstico, un nivel de riesgo ("BAJO", "MEDIO", "ALTO") y 3 recomendaciones.
-    Responde ÚNICAMENTE con un JSON con la estructura exacta:
+    Genera un análisis financiero completo y responde ÚNICAMENTE con un JSON que cumpla exactamente con esta estructura:
     {{
-        "diagnostico": "...",
-        "nivel_riesgo": "BAJO",
-        "recomendaciones": ["...", "...", "..."]
+        "perfil_financiero": "SALUDABLE" | "EN OBSERVACION" | "EN RIESGO",
+        "probabilidad": 0.85,
+        "resumen_gastos": {{
+            "CATEGORIA_1": 100.0,
+            "CATEGORIA_2": 200.0
+        }},
+        "recomendaciones": ["Recomendación 1", "Recomendación 2", "Recomendación 3"],
+        "total_gastado": 300.0,
+        "capacidad_ahorro_mensual": 150.0,
+        "porcentaje_tasa_ahorro": 25.5,
+        "progreso_meta_ahorro": 10.0,
+        "meses_para_meta": 12.0
     }}
     """
 
@@ -43,7 +62,7 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
             messages=[
                 {
                     "role": "system",
-                    "content": "Eres un asistente financiero que responde exclusivamente en formato JSON estructurado."
+                    "content": "Eres un asistente financiero experto que responde exclusivamente en formato JSON estructurado válido."
                 },
                 {
                     "role": "user",
@@ -60,7 +79,13 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
     except Exception as e:
         print(f"\n[GROQ ERROR]: {e}\n")
         return AnalisisOutputDTO(
-            diagnostico=f"Error al conectar con la IA de Groq: {str(e)}",
-            nivel_riesgo="MEDIO",
-            recomendaciones=["Verificar la validez de la GROQ_API_KEY en la consola de Groq."]
+            perfil_financiero="EN OBSERVACION",
+            probabilidad=0.0,
+            resumen_gastos={},
+            recomendaciones=[f"Servicio en modo degradado por error con la IA: {str(e)}"],
+            total_gastado=0.0,
+            capacidad_ahorro_mensual=0.0,
+            porcentaje_tasa_ahorro=0.0,
+            progreso_meta_ahorro=0.0,
+            meses_para_meta=0.0
         )
