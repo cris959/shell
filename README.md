@@ -342,4 +342,44 @@ flowchart TD
    ValidateToken -->|"No / sin token"| Block
 ````
 ## ☕ Equipo Backend (Siguientes Pasos)
-1. Configuración de despliegue en ambiente cloud (Oracle Cloud Infrastructure - OCI).
+1. Configuración de despliegue en ambiente cloud (Oracle Cloud Infrastructure - OCI). ###
+
+## Autenticación Federada con Google OAuth2
+Para ofrecer una experiencia de usuario rápida y segura, se integró el flujo de inicio de sesión social utilizando Google OAuth2 respaldado por Spring Security.
+
+## 🛠️ Pasos Realizados:
+1. Configuración en Google Cloud Console: Se registró un proyecto dedicado en la consola de Google Cloud habilitando la Google Auth Platform, configurando el consentimiento de usuario en modo externo y generando las credenciales OAuth 2.0 (**Client ID** y **Client Secret**).
+
+2. Definición de URIs de Redirección: Se configuró el punto de retorno autorizado (**http://localhost:8008/login/oauth2/code/google**) para gestionar de forma segura el intercambio de códigos de autorización del proveedor.
+
+3. Integración en Spring Boot:
+
+° Se incorporó la dependencia **spring-boot-starter-oauth2-client** para delegar la gestión del protocolo OAuth2/OIDC.
+ 
+° Se configuraron los parámetros de cliente en el archivo **application.properties**.
+
+° Se actualizó la clase **SecurityConfig** para soportar **.oauth2Login()** junto a la validación JWT existente de la aplicación.
+
+4. Diseño de Interfaz: Se rediseñó la vista **login.html** (Bootstrap 5) añadiendo un botón corporativo de acceso con Google que redirige automáticamente al endpoint de autorización provisto por Spring Security (**/oauth2/authorization/google**).
+
+## 📊 Diagrama de Flujo 
+
+````mermaid
+sequenceDiagram
+    autonumber
+    actor Usuario
+    participant Frontend as Login (Thymeleaf)
+    participant Spring as Spring Boot Backend
+    participant Google as Google OAuth2 Server
+
+    Usuario->>Frontend: Clic en "Continuar con Google"
+    Frontend->>Spring: Redirección a /oauth2/authorization/google
+    Spring->>Google: Solicita autenticación del usuario
+    Google-->>Usuario: Muestra pantalla de selección de cuenta
+    Usuario->>Google: Selecciona cuenta y otorga permisos
+    Google-->>Spring: Devuelve el Authorization Code vía /login/oauth2/code/google
+    Spring->>Google: Solicita Tokens de Acceso e Información de Perfil
+    Google-->>Spring: Retorna datos del usuario (Email, Nombre)
+    Spring->>Spring: Valida o registra al usuario en el sistema
+    Spring-->>Usuario: Redirección exitosa a /dashboard con sesión activa
+````
