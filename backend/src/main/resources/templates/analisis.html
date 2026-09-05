@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Ingreso de Datos - Hackathon Finanzas</title>
+</head>
+<body>
+<section>
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Ingresar Datos para Análisis</h3>
+
+                    <!-- Formulario para enviar los datos al backend -->
+                    <form th:action="@{/api/v1/analisis}" method="post">
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción de Transacción / Datos</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="4" placeholder="Ej: Ingresos mensuales, gastos en insumos..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Enviar a Procesar con IA</button>
+                        <a href="/dashboard" class="btn btn-secondary ms-2">Volver al Dashboard</a>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
