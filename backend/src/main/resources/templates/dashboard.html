@@ -23,12 +23,13 @@
                     <div class="card-body">
                         <h5 class="card-title">Análisis Financiero</h5>
                         <p class="card-text">Ingresa tus datos financieros o transacciones para procesarlos con el modelo de IA.</p>
-                        <a href="/analisis" class="btn btn-primary">Ir a Ingresar Datos</a>
+                        <a th:href="@{/analisis}" class="btn btn-primary">Ir a Ingresar Datos</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div th:replace="~{fragments/footer :: app-footer}"></div>
 </section>
 </body>
 </html>

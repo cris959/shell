@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{layout :: layout('FinanceAI - Configuración', ~{::content})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuración</title>
+</head>
+<body>
+<div th:fragment="content" class="space-y-6 max-w-4xl mx-auto w-full">
+    <div class="mb-2">
+        <h1 class="text-2xl font-bold text-slate-800">⚙️ Configuración del Sistema</h1>
+        <p class="text-xs text-slate-500">Administra las preferencias generales de tu cuenta en FinanceAI.</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 text-sm text-slate-600">
+        <div class="flex justify-between items-center py-2 border-b border-slate-100">
+            <div>
+                <h3 class="font-bold text-slate-800">Modo de Análisis por IA</h3>
+                <p class="text-xs text-slate-400">Motor predeterminado para procesamiento de transacciones.</p>
+            </div>
+            <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-semibold">OpenAI / Mistral</span>
+        </div>
+        <div class="flex justify-between items-center py-2">
+            <div>
+                <h3 class="font-bold text-slate-800">Moneda Base</h3>
+                <p class="text-xs text-slate-400">Divisa principal para el cálculo de reportes y ahorro.</p>
+            </div>
+            <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold">ARS ($)</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

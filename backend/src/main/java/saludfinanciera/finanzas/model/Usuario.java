@@ -11,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,6 +41,35 @@ public class Usuario implements UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "perfil_id")
     private Perfil perfil;
+
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal ingresoMensual;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal valorTotalDeudas;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal pagoMensualDeuda;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal fondoEmergencia;
+
+    private String frecuenciaAhorro; // Ej: "Semanal", "Quincenal", "Mensual"
+
+
+    // Funcion calculado para Thymeleaf (Devuelve un int o BigDecimal con el porcentaje)
+    public int getNivelEndeudamiento() {
+        if (ingresoMensual == null || ingresoMensual.compareTo(BigDecimal.ZERO) == 0 || valorTotalDeudas == null) {
+            return 0;
+        }
+        // Ejemplo simple de cálculo: (Deudas / Ingreso) * 100 o ajustalo a tu lógica de negocio
+        BigDecimal calculo = valorTotalDeudas
+                .divide(ingresoMensual, 2, java.math.RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+
+        return calculo.intValue();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

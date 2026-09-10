@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{layout :: layout('FinanceAI - Detalle de Análisis', ~{::content})}">
+<head>
+    <meta charset="UTF-8">
+    <title>FinanceAI - Detalle de Análisis</title>
+</head>
+<body>
+
+<!-- Todo el contenido de la vista se envuelve dentro de este fragmento -->
+<div th:fragment="content" class="space-y-6 max-w-5xl mx-auto w-full">
+
+    <!-- Título de la sección y botón de retorno -->
+    <div class="flex justify-between items-center mb-2">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Detalle del Análisis #<span th:text="${analisis.id}">1</span></h1>
+            <p class="text-xs text-slate-500">Revisa las métricas, indicadores y recomendaciones de la IA para este reporte.</p>
+        </div>
+        <a th:href="@{/historial}" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-50 transition shadow-sm flex items-center gap-2">
+            ← Volver al Historial
+        </a>
+    </div>
+
+    <!-- Tarjetas de Resumen General -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Perfil Financiero -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center">
+            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Perfil Financiero</h2>
+            <div class="mb-2">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold"
+                          th:classappend="${analisis.perfilFinanciero == 'SALUDABLE'} ? 'bg-emerald-100 text-emerald-700' : (${analisis.perfilFinanciero == 'RIESGO'} ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700')"
+                          th:text="${analisis.perfilFinanciero}">SALUDABLE</span>
+            </div>
+            <p class="text-xs text-slate-500">Probabilidad de éxito: <span class="font-semibold text-slate-700" th:text="${analisis.probabilidad * 100}">92</span>%</p>
+        </div>
+
+        <!-- Capacidad de Ahorro Mensual -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center">
+            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Capacidad de Ahorro Mensual</h2>
+            <h3 class="text-xl font-bold text-indigo-600 mb-1">$<span th:text="${#numbers.formatDecimal(analisis.capacidadAhorroMensual, 1, 'POINT', 2, 'COMMA')}">0,00</span></h3>
+            <p class="text-xs text-slate-500">Tasa de ahorro: <span class="font-semibold text-slate-700" th:text="${analisis.porcentajeTasaAhorro}">0</span>%</p>
+        </div>
+
+        <!-- Total Gastado -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center">
+            <h2 class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">Total Gastado</h2>
+            <h3 class="text-xl font-bold text-rose-500 mb-1">$<span th:text="${#numbers.formatDecimal(analisis.totalGastado, 1, 'POINT', 2, 'COMMA')}">0,00</span></h3>
+            <p class="text-xs text-slate-500">Fecha: <span class="font-semibold text-slate-700" th:text="${#temporals.format(analisis.fechaCreacion, 'dd MMM yyyy, HH:mm')}">01 Ene 2026</span></p>
+        </div>
+    </div>
+
+    <!-- Dos Columnas: Datos del Análisis / Recomendaciones y Gastos -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Datos del Análisis -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <span class="text-indigo-600">ℹ️</span> Datos del Análisis
+            </h3>
+            <ul class="space-y-3 text-xs">
+                <li class="flex justify-between py-1 border-b border-slate-50">
+                    <span class="text-slate-500">Usuario ID:</span>
+                    <strong class="text-slate-800" th:text="${analisis.usuarioId}">USR-1001</strong>
+                </li>
+                <li class="flex justify-between py-1 border-b border-slate-50">
+                    <span class="text-slate-500">Ingreso Mensual:</span>
+                    <strong class="text-slate-800">$<span th:text="${#numbers.formatDecimal(analisis.ingresoMensual, 1, 'POINT', 2, 'COMMA')}">0,00</span></strong>
+                </li>
+                <li class="flex justify-between py-1 border-b border-slate-50">
+                    <span class="text-slate-500">Nivel de Endeudamiento:</span>
+                    <strong class="text-slate-800">$<span th:text="${#numbers.formatDecimal(analisis.nivelEndeudamiento, 1, 'POINT', 2, 'COMMA')}">0,00</span></strong>
+                </li>
+                <li class="flex justify-between py-1 border-b border-slate-50">
+                    <span class="text-slate-500">Frecuencia de Ahorro:</span>
+                    <strong class="text-slate-800" th:text="${analisis.frecuenciaAhorro}">MENSUAL</strong>
+                </li>
+                <li class="flex justify-between py-1 border-b border-slate-50">
+                    <span class="text-slate-500">Descripción / Motivo:</span>
+                    <strong class="text-slate-800" th:text="${analisis.descripcion}">Compras</strong>
+                </li>
+                <li class="flex justify-between py-1 border-b border-slate-50">
+                    <span class="text-slate-500">Progreso Meta de Ahorro:</span>
+                    <strong class="text-slate-800"><span th:text="${analisis.progresoMetaAhorro}">0</span>%</strong>
+                </li>
+                <li class="flex justify-between py-1">
+                    <span class="text-slate-500">Meses para la Meta:</span>
+                    <strong class="text-slate-800" th:text="${analisis.mesesParaMeta}">0</strong>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Recomendaciones de la IA y Resumen de Gastos -->
+        <div class="space-y-6">
+            <!-- Recomendaciones -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <span class="text-amber-500">💡</span> Recomendaciones de la IA
+                </h3>
+                <ul class="space-y-2.5">
+                    <li class="flex items-start gap-2.5 text-xs text-slate-700 leading-relaxed" th:each="rec : ${analisis.recomendaciones}">
+                        <span class="text-emerald-500 font-bold mt-0.5">✓</span>
+                        <span th:text="${rec}">Recomendación personalizada</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Resumen de Gastos por Categoría -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <span class="text-sky-500">📊</span> Resumen de Gastos por Categoría
+                </h3>
+
+                <!-- Si es un Map (clave-valor) -->
+                <ul class="space-y-2" th:if="${analisis.resumenGastos != null and !analisis.resumenGastos.empty}">
+                    <li class="flex justify-between items-center text-xs py-1.5 border-b border-slate-50" th:each="entry : ${analisis.resumenGastos}">
+                        <span class="text-slate-600" th:text="${entry.key}">Categoría</span>
+                        <span class="px-2.5 py-1 bg-slate-100 text-slate-700 font-medium rounded-full">$<span th:text="${#numbers.formatDecimal(entry.value, 1, 'POINT', 2, 'COMMA')}">0,00</span></span>
+                    </li>
+                </ul>
+
+                <!-- Mensaje si está vacío -->
+                <div th:if="${analisis.resumenGastos == null or analisis.resumenGastos.empty}" class="text-slate-400 text-xs py-2 text-center">
+                    No hay registros de gastos por categoría para este análisis.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

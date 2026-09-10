@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Table(name = "analisis_financiero")
@@ -78,7 +75,7 @@ public class AnalisisFinanciero {
     @CollectionTable(name = "analisis_recomendaciones", joinColumns = @JoinColumn(name = "analisis_id"))
     @Column(name = "recomendacion", length = 1000)
     @Builder.Default
-    private List<String> recomendaciones = new ArrayList<>();
+    private Set<String> recomendaciones = new HashSet<>(); // Cambiado a Set evita duplicados
 
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;

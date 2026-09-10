@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
+<body>
+<!-- Fragmento que representa una sola tarjeta del historial -->
+<div th:fragment="analisis-card(analisis)" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-slate-100 text-slate-500 rounded-xl flex items-center justify-center font-bold">
+            📄
+        </div>
+        <div>
+            <!-- Muestra la fecha de creación real de tu entidad -->
+            <span class="text-[11px] text-slate-400 block" th:text="${#temporals.format(analisis.fechaCreacion, 'dd MMM, yyyy HH:mm')}">Fecha</span>
+            <!-- Muestra el valor real analizado -->
+            <span class="font-bold text-slate-800 text-sm" th:text="${'$' + #numbers.formatDecimal(analisis.valor, 1, 'COMMA', 2, 'POINT')}">$0.00</span>
+        </div>
+    </div>
+    <div class="flex items-center gap-3">
+        <!-- Muestra el perfil financiero devuelto por la IA -->
+        <span th:text="${'● ' + (analisis.perfilFinanciero != null ? analisis.perfilFinanciero : 'Evaluado')}"
+              class="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[11px] font-semibold rounded-full border border-emerald-100">
+                ● Perfil
+            </span>
+
+        <!-- Enlace al detalle -->
+        <a th:href="@{'/historial/detalle/' + ${analisis.id}}"
+           class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs rounded-xl font-medium transition inline-block">
+            Ver detalles
+        </a>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{layout :: layout('FinanceAI - Resultado del Análisis', ~{::content})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado del Análisis Financiero</title>
+</head>
+<body>
+
+<!-- Todo el contenido de la vista se envuelve dentro de este fragmento -->
+<div th:fragment="content" class="space-y-6 max-w-4xl mx-auto w-full">
+
+    <!-- Título de sección -->
+    <div class="mb-2 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">📊 Resultado del Análisis Financiero</h1>
+            <p class="text-xs text-slate-500">Métricas procesadas y recomendaciones de tu informe actual.</p>
+        </div>
+        <div>
+            <a href="/analisis" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
+                Realizar otro análisis
+            </a>
+        </div>
+    </div>
+
+    <!-- Tarjeta de Resumen Principal -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h2 class="text-sm font-bold text-slate-800 mb-4">Perfil Detectado</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-indigo-50/50 border border-indigo-100 p-4 rounded-xl">
+                <p class="text-[11px] text-slate-500 mb-1">Perfil Financiero</p>
+                <p class="text-xl font-bold text-indigo-600" th:text="${resultado.perfilFinanciero}">Conservador</p>
+            </div>
+            <div class="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl">
+                <p class="text-[11px] text-slate-500 mb-1">Probabilidad de Éxito / Confianza</p>
+                <p class="text-xl font-bold text-emerald-600" th:text="${resultado.probabilidad} + '%'">85%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Métricas Clave -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <p class="text-[11px] font-medium text-slate-500 mb-1">Total Gastado</p>
+            <p id="valTotalGastado" class="text-xl font-bold text-rose-500" th:text="${resultado.totalGastado}">0.0</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <p class="text-[11px] font-medium text-slate-500 mb-1">Capacidad de Ahorro</p>
+            <p id="valCapacidadAhorro" class="text-xl font-bold text-indigo-600" th:text="${resultado.capacidadAhorroMensual}">0.0</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <p class="text-[11px] font-medium text-slate-500 mb-1">Tasa de Ahorro</p>
+            <p class="text-xl font-bold text-purple-600" th:text="${resultado.porcentajeTasaAhorro} + '%'">0%</p>
+        </div>
+    </div>
+
+    <!-- Sección de Gráfico de Torta -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h3 class="text-sm font-bold text-slate-800 mb-4 text-center">📈 Distribución Financiera</h3>
+        <div class="max-w-xs mx-auto">
+            <!-- Chart.js CDN -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <canvas id="graficoTortaAnalisis"></canvas>
+        </div>
+    </div>
+
+    <!-- Recomendaciones de la IA -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <span>💡</span> Recomendaciones Personalizadas
+        </h3>
+        <ul class="list-disc list-inside space-y-2 text-slate-600 text-xs leading-relaxed">
+            <li th:each="rec : ${resultado.recomendaciones}" th:text="${rec}">Recomendación de ejemplo</li>
+        </ul>
+    </div>
+
+    <!-- Script para inicializar Chart.js leyendo dinámicamente los valores de la vista -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const totalGastadoTxt = document.getElementById('valTotalGastado').innerText.replace('$', '').trim();
+            const capacidadAhorroTxt = document.getElementById('valCapacidadAhorro').innerText.replace('$', '').trim();
+
+            const totalGastado = parseFloat(totalGastadoTxt) || 0;
+            const capacidadAhorro = parseFloat(capacidadAhorroTxt) || 0;
+
+            const ctx = document.getElementById('graficoTortaAnalisis').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Total Gastado', 'Capacidad de Ahorro'],
+                    datasets: [{
+                        data: [totalGastado, capacidadAhorro],
+                        backgroundColor: [
+                            'rgba(244, 63, 94, 0.8)',   // Rojo elegante (Tailwind rose-500)
+                            'rgba(79, 70, 229, 0.8)'    // Índigo coherente con la app (Tailwind indigo-600)
+                        ],
+                        borderColor: [
+                            'rgba(244, 63, 94, 1)',
+                            'rgba(79, 70, 229, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+</div>
+
+</body>
+</html>

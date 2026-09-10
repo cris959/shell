@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{layout :: layout('FinanceAI - Nuevo Análisis', ~{::content})}">
+<head>
+    <meta charset="UTF-8">
+    <title>FinanceAI - Nuevo Análisis (Extendido)</title>
+</head>
+<body>
+
+<!-- Todo el contenido de la vista se envuelve dentro de este fragmento -->
+<div th:fragment="content" class="space-y-6">
+
+    <!-- Título de la sección -->
+    <div class="mb-2">
+        <h1 class="text-2xl font-bold text-slate-800">Nuevo Análisis</h1>
+        <p class="text-slate-500 text-sm">Ingresa tus transacciones recientes para generar un nuevo reporte.</p>
+    </div>
+
+    <!-- Layout de dos columnas (Formulario a la izquierda, Tarjeta de acción a la derecha) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+
+        <!-- Columna Izquierda: Formularios y Carga -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <form id="formAnalisis" th:action="@{/analisis/procesar}" method="POST" enctype="multipart/form-data" class="space-y-6">
+
+                <!-- Input oculto para las transacciones JSON -->
+                <input type="hidden" id="transaccionesJson" name="transaccionesJson">
+
+                <!-- Sección 1: Información Financiera Base -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-base font-bold text-slate-800 mb-4">Información Financiera Base</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="ingreso-mensual" class="block text-[11px] font-medium text-slate-500 mb-1">Ingreso Mensual ($)</label>
+                            <input id="ingreso-mensual" type="number" step="0.01" name="ingresoMensual" placeholder="Ej. 2500000" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="total-deudas" class="block text-[11px] font-medium text-slate-500 mb-1">Total de Deudas ($)</label>
+                            <input id="total-deudas" type="number" step="0.01" name="totalDeudas" placeholder="Ej. 875000" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="frecuencia-ahorro" class="block text-[11px] font-medium text-slate-500 mb-1">Frecuencia de Ahorro</label>
+                            <select id="frecuencia-ahorro" name="frecuenciaAhorro" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="MENSUAL">Mensual</option>
+                                <option value="QUINCENAL">Quincenal</option>
+                                <option value="SEMANAL">Semanal</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 2: Indicadores Financieros Avanzados -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-base font-bold text-slate-800 mb-4">Indicadores Financieros Avanzados</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="monto-inversion" class="block text-[11px] font-medium text-slate-500 mb-1">Monto de Inversión ($)</label>
+                            <input id="monto-inversion" type="number" step="0.01" name="montoInversion" placeholder="Ej. 200000" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="objetivo-presupuesto" class="block text-[11px] font-medium text-slate-500 mb-1">Objetivo de Presupuesto ($)</label>
+                            <input id="objetivo-presupuesto" type="number" step="0.01" name="objetivoPresupuesto" placeholder="Ej. 3000000" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="pago-mensual-deuda-input" class="block text-[11px] font-medium text-slate-500 mb-1">Pago Mensual de Deuda ($)</label>
+                            <input id="pago-mensual-deuda-input" type="number" step="0.01" name="pagoMensualDeuda" placeholder="Ej. 250000" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="cantidad-suscripciones" class="block text-[11px] font-medium text-slate-500 mb-1">Cantidad de Suscripciones</label>
+                            <input id="cantidad-suscripciones" type="number" name="cantidadSuscripciones" placeholder="Ej. 3" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label for="fondo-emergencia-input" class="block text-[11px] font-medium text-slate-500 mb-1">Fondo de Emergencia ($)</label>
+                            <input id="fondo-emergencia-input" type="number" step="0.01" name="fondoEmergencia" placeholder="Ej. 1500000" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selector de Entrada Manual o Carga CSV -->
+                <div class="flex gap-2 border-b border-slate-200 pb-2 mb-6">
+                    <button type="button" id="tabManual" onclick="cambiarPestana('manual')" class="px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-medium transition">Entrada Manual</button>
+                    <button type="button" id="tabCsv" onclick="cambiarPestana('csv')" class="px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50 transition">Carga de CSV</button>
+                </div>
+
+                <!-- SECCIÓN 1: PANEL DE ENTRADA MANUAL -->
+                <div id="panelManual" class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-base font-bold text-slate-800 mb-4">Agregar Transacción</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                            <div>
+                                <label for="inputDesc" class="block text-[11px] font-medium text-slate-500 mb-1">Descripción</label>
+                                <input type="text" id="inputDesc" placeholder="Ej. Compras de la semana" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label for="inputMonto" class="block text-[11px] font-medium text-slate-500 mb-1">Monto ($)</label>
+                                <input type="number" step="0.01" id="inputMonto" placeholder="0.00" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-end">
+                            <button type="button" onclick="agregarTransaccionTabla()" class="px-5 py-2 bg-amber-500 text-white rounded-xl text-sm font-medium hover:bg-amber-600 transition shadow-sm">
+                                + Agregar a la lista
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Entradas Actuales -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-slate-800">Entradas Actuales</h3>
+                            <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-full" id="contadorElementos">0 elementos</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                <tr class="border-b border-slate-100 text-xs text-slate-400 uppercase">
+                                    <th class="pb-3 font-medium">Descripción</th>
+                                    <th class="pb-3 font-medium text-right">Monto</th>
+                                    <th class="pb-3 font-medium text-center">Acción</th>
+                                </tr>
+                                </thead>
+                                <tbody id="tablaTransaccionesBody">
+                                <tr>
+                                    <td colspan="3" class="py-6 text-center text-slate-400 text-sm">
+                                        No has registrado transacciones aún. ¡Agrega tu primer gasto arriba!
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="border-t border-slate-100 mt-4 pt-4 flex justify-between items-center font-bold text-slate-800 text-sm">
+                            <span>Total</span>
+                            <span id="montoTotalGeneral" class="text-indigo-600">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: PANEL DE CARGA DE CSV (Oculto por defecto) -->
+                <div id="panelCsv" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-base font-bold text-slate-800 mb-2">Cargar archivo de transacciones (.csv)</h3>
+                        <p class="text-xs text-slate-500 mb-4">Sube un archivo con formato CSV estructurado para importar masivamente tus movimientos.</p>
+
+                        <input type="file" name="file" accept=".csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                </div>
+
+                <!-- Botón oculto real de envío para que lo active la tarjeta lateral -->
+                <button type="submit" id="btnSubmitReal" class="hidden">Enviar</button>
+            </form>
+
+        </div>
+
+        <!-- Columna Derecha: Tarjetas de Estado e IA -->
+        <div class="space-y-6">
+            <!-- Tarjeta de listo para analizar -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center font-bold">✨</div>
+                    <h3 class="font-bold text-slate-800">¿Listo para analizar?</h3>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">Nuestra IA procesará tus datos y actualizará tu narrativa financiera para darte recomendaciones personalizadas.</p>
+
+                <button type="button" onclick="document.getElementById('btnSubmitReal').click();" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-medium text-sm hover:bg-indigo-700 transition shadow-sm">
+                    Generar Análisis
+                </button>
+            </div>
+
+            <!-- Nota informativa -->
+            <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex gap-3">
+                <span class="text-amber-500 text-lg">💡</span>
+                <p class="text-xs text-amber-900 leading-relaxed">
+                    <strong>¡Ya casi!</strong> Agregar entradas manuales o CSV mantiene tu historial preciso. Cada detalle ayuda a pintar una mejor imagen de tus metas.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script específico para la interactividad de las pestañas y la tabla de transacciones -->
+    <script>
+        function cambiarPestana(tipo) {
+            const btnManual = document.getElementById('tabManual');
+            const btnCsv = document.getElementById('tabCsv');
+            const panelManual = document.getElementById('panelManual');
+            const panelCsv = document.getElementById('panelCsv');
+
+            if (tipo === 'manual') {
+                btnManual.className = "px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-medium transition";
+                btnCsv.className = "px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50 transition";
+                panelManual.classList.remove('hidden');
+                panelCsv.classList.add('hidden');
+            } else {
+                btnCsv.className = "px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-medium transition";
+                btnManual.className = "px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50 transition";
+                panelCsv.classList.remove('hidden');
+                panelManual.classList.add('hidden');
+            }
+        }
+
+        let listaTransacciones = [];
+
+        function agregarTransaccionTabla() {
+            const desc = document.getElementById('inputDesc').value;
+            const monto = parseFloat(document.getElementById('inputMonto').value);
+
+            if (!desc || isNaN(monto) || monto <= 0) {
+                alert('Por favor ingresa una descripción y un monto válido.');
+                return;
+            }
+
+            listaTransacciones.push({ descripcion: desc, monto: monto });
+            actualizarTablaUI();
+
+            document.getElementById('inputDesc').value = '';
+            document.getElementById('inputMonto').value = '';
+        }
+
+        function eliminarTransaccion(index) {
+            listaTransacciones.splice(index, 1);
+            actualizarTablaUI();
+        }
+
+        function actualizarTablaUI() {
+            const tbody = document.getElementById('tablaTransaccionesBody');
+            const contador = document.getElementById('contadorElementos');
+            const totalGeneral = document.getElementById('montoTotalGeneral');
+
+            contador.innerText = `${listaTransacciones.length} elementos`;
+
+            if (listaTransacciones.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-slate-400 text-sm">No has registrado transacciones aún. ¡Agrega tu primer gasto arriba!</td></tr>`;
+                totalGeneral.innerText = '$0.00';
+                return;
+            }
+
+            let html = '';
+            let sumaTotal = 0;
+
+            listaTransacciones.forEach((item, index) => {
+                sumaTotal += item.monto;
+                html += `
+                        <tr class="border-b border-slate-50 text-sm">
+                            <td class="py-3 text-slate-700">${item.descripcion}</td>
+                            <td class="py-3 text-right font-medium text-slate-800">$${item.monto.toFixed(2)}</td>
+                            <td class="py-3 text-center">
+                                <button type="button" onclick="eliminarTransaccion(${index})" class="text-rose-500 hover:text-rose-700 text-xs font-semibold">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+            });
+
+            tbody.innerHTML = html;
+            totalGeneral.innerText = `$${sumaTotal.toFixed(2)}`;
+        }
+
+        function actualizarInputJson() {
+            const inputOculto = document.getElementById('transaccionesJson');
+            if (inputOculto) {
+                inputOculto.value = JSON.stringify(listaTransacciones);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const formulario = document.getElementById('formAnalisis');
+            if (formulario) {
+                formulario.addEventListener('submit', function(e) {
+                    // Previene el envío inmediato para permitir validaciones o procesamiento previo
+                    e.preventDefault();
+                    actualizarInputJson();
+                    console.log("JSON empaquetado y listo para enviar:", document.getElementById('transaccionesJson').value);
+                    // Si tus validaciones son correctas, puedes enviar el formulario manualmente con:
+                    // formulario.submit();
+                });
+            }
+        });
+    </script>
+
+</div>
+
+</body>
+</html>

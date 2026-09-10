@@ -58,11 +58,4 @@ public class WebAuthController {
     public String mostrarDashboard(Model model) {
         return "dashboard"; // Busca templates/dashboard.html
     }
-
-    // 4. Mostrar la vista para ingresar datos y ver análisis
-    @GetMapping("/analisis")
-    public String mostrarAnalisis(Model model) {
-        // Aquí puedes pasar un objeto vacío si vas a usar un formulario Thymeleaf para enviar datos
-        return "analisis"; // Busca templates/analisis.html
-    }
 }

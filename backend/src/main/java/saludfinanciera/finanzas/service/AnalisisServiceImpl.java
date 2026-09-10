@@ -15,10 +15,8 @@ import saludfinanciera.finanzas.repository.AnalisisFinancieroRepository;
 import saludfinanciera.finanzas.repository.TransaccionRepository;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
+
 
 @Service
 public class AnalisisServiceImpl implements AnalisisService{
@@ -145,7 +143,7 @@ public class AnalisisServiceImpl implements AnalisisService{
 
         //                        .findByUsuarioId
         return analisisRepository.findByUsuarioIdWithRecomendaciones(usuarioId.trim()).stream()
-                .map(entidad -> mapToAnalisisOutputDTO(entidad))
+                .map(this::mapToAnalisisOutputDTO)
                 .toList();
     }
 
@@ -153,13 +151,16 @@ public class AnalisisServiceImpl implements AnalisisService{
     // Métodos Auxiliares Privados carga de alnalisis_id
     // =========================================================================
     private void persistirAnalisis(String usuarioId, AnalisisInputDTO inputDTO, AnalisisOutputDTO respuestaNlp) {
-        Map<String, Double> resumenGastosConvertido = Map.of();
+        // CAMBIO AQUÍ: Usar HashMap mutable en lugar de Map.of()
+        Map<String, Double> resumenGastosConvertido = new HashMap<>();
         if (respuestaNlp.resumenGastos() != null) {
-            resumenGastosConvertido = respuestaNlp.resumenGastos().entrySet().stream()
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            entry -> (entry.getValue() instanceof Number n) ? n.doubleValue() : 0.0
-                    ));
+            for (Map.Entry<String, Object> entry : respuestaNlp.resumenGastos().entrySet()) {
+                if (entry.getValue() instanceof Number n) {
+                    resumenGastosConvertido.put(entry.getKey(), n.doubleValue());
+                } else {
+                    resumenGastosConvertido.put(entry.getKey(), 0.0);
+                }
+            }
         }
 
         // Resguardo para evitar pasar null a la columna NOT NULL de la Base de Datos
@@ -182,7 +183,9 @@ public class AnalisisServiceImpl implements AnalisisService{
                 .progresoMetaAhorro(respuestaNlp.progresoMetaAhorro() != null ? respuestaNlp.progresoMetaAhorro() : 0.0)
                 .mesesParaMeta(respuestaNlp.mesesParaMeta() != null ? respuestaNlp.mesesParaMeta() : 0.0)
                 .resumenGastos(resumenGastosConvertido)
-                .recomendaciones(respuestaNlp.recomendaciones() != null ? respuestaNlp.recomendaciones() : List.of())
+                .recomendaciones(respuestaNlp.recomendaciones() != null ? new HashSet<>(respuestaNlp.recomendaciones())
+                        : new HashSet<>()
+                )
                 .build();
 
         // 1. Guardar el análisis y capturar la entidad persistida con su ID generado
@@ -214,7 +217,9 @@ public class AnalisisServiceImpl implements AnalisisService{
                 entidad.getPerfilFinanciero(),
                 entidad.getProbabilidad(),
                 resumenObj,
-                entidad.getRecomendaciones() != null ? entidad.getRecomendaciones() : List.of(),
+                entidad.getRecomendaciones() != null
+                        ? new ArrayList<>(entidad.getRecomendaciones()) // <-- Convertimos el Set a List
+                        : List.of(),
                 entidad.getTotalGastado(),
                 entidad.getCapacidadAhorroMensual(),
                 entidad.getPorcentajeTasaAhorro(),

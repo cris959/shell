@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{layout :: layout('FinanceAI - Términos de Servicio', ~{::content})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Términos de Servicio</title>
+</head>
+<body>
+<div th:fragment="content" class="space-y-6 max-w-4xl mx-auto w-full">
+    <div class="mb-4">
+        <h1 class="text-2xl font-bold text-slate-800">📄 Términos de Servicio</h1>
+        <p class="text-xs text-slate-500">Condiciones de uso de la plataforma</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 text-sm text-slate-600 leading-relaxed">
+        <p>Al utilizar <strong>FinanceAI</strong>, aceptas los términos y condiciones de uso establecidos para nuestra plataforma de análisis financiero guiado por inteligencia artificial.</p>
+    </div>
+</div>
+</body>
+</html>

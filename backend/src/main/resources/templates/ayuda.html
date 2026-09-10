@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{layout :: layout('FinanceAI - Centro de Ayuda', ~{::content})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Centro de Ayuda</title>
+</head>
+<body>
+<div th:fragment="content" class="space-y-6 max-w-4xl mx-auto w-full">
+    <div class="mb-2">
+        <h1 class="text-2xl font-bold text-slate-800">💡 Centro de Ayuda y Soporte</h1>
+        <p class="text-xs text-slate-500">Todo lo que necesitas saber para aprovechar al máximo FinanceAI.</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 text-sm text-slate-600 leading-relaxed">
+        <h3 class="font-bold text-slate-800">¿Cómo realizar un nuevo análisis?</h3>
+        <p>Dirígete a la sección <strong>Nuevo Análisis</strong> en el menú lateral, completa tus datos financieros base o carga tu archivo CSV con transacciones para obtener métricas y recomendaciones generadas por IA.</p>
+
+        <h3 class="font-bold text-slate-800 pt-2">¿Tienes dudas técnicas o encontraste algún error?</h3>
+        <p>Revisa la documentación técnica y el código fuente oficial de nuestra solución:</p>
+        <div class="pt-1">
+            <a href="https://github.com/cris959/shell" target="_blank"
+               class="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white rounded-xl text-xs font-semibold shadow-sm transition">
+                Ver Repositorio (cris959/shell) ↗
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

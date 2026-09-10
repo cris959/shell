@@ -1,0 +1,49 @@
+<header th:fragment="app-header" class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-white py-2">
+
+    <!-- Lado Izquierdo: Botón Hamburguesa (Móviles) y Búsqueda de IA -->
+    <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center gap-3">
+            <!-- Botón Hamburguesa visible solo en móviles -->
+            <button type="button" onclick="toggleSidebar()" class="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Barra de Búsqueda Interactiva conectada a la IA (Más ancha) -->
+        <form id="searchForm" class="relative w-full sm:w-80 md:w-96 lg:w-[420px]">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </span>
+            <input type="text"
+                   name="query"
+                   placeholder="Pregúntale a la IA (ej. ¿Cómo mejorar mi ahorro?)..."
+                   aria-label="Buscar"
+                   class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+        </form>
+    </div>
+
+    <!-- Sección Derecha: Notificaciones y Perfil de Usuario -->
+    <div class="flex items-center gap-4 self-end sm:self-auto">
+        <!-- Botón de Notificaciones -->
+        <button type="button" class="relative p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-50 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+        </button>
+
+        <!-- Avatar y Nombre -->
+        <div class="flex items-center gap-2.5">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" alt="Avatar" class="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm">
+
+            <!-- Muestra el nombre global obtenido desde la BD con el ControllerAdvice -->
+            <span class="text-sm font-semibold text-slate-700"
+                  th:text="${usuarioGlobal != null ? usuarioGlobal.nombre : 'Usuario'}">
+                Nombre
+            </span>
+        </div>
+    </div>
+</header>
