@@ -17,12 +17,9 @@ import saludfinanciera.finanzas.dto.response.AnalisisOutputDTO;
 import saludfinanciera.finanzas.model.AnalisisFinanciero;
 import saludfinanciera.finanzas.model.Usuario;
 import saludfinanciera.finanzas.repository.AnalisisFinancieroRepository;
+import saludfinanciera.finanzas.service.CsvParserService;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,10 +31,12 @@ public class WebAnalisisController {
 
     private final NlpDataClient nlpDataClient;
     private final AnalisisFinancieroRepository analisisFinancieroRepository;
+    private final CsvParserService csvParserService;
 
-    public WebAnalisisController(NlpDataClient nlpDataClient, AnalisisFinancieroRepository analisisFinancieroRepository) {
+    public WebAnalisisController(NlpDataClient nlpDataClient, AnalisisFinancieroRepository analisisFinancieroRepository, CsvParserService csvParserService) {
         this.nlpDataClient = nlpDataClient;
         this.analisisFinancieroRepository = analisisFinancieroRepository;
+        this.csvParserService = csvParserService;
     }
 
     // 1. Mostrar la vista del formulario de análisis
@@ -58,13 +57,12 @@ public class WebAnalisisController {
             @RequestParam(required = false) Integer cantidadSuscripciones,
             @RequestParam(required = false) BigDecimal fondoEmergencia,
             @RequestParam(required = false) MultipartFile file,
-            //  RECIBIMOS EL JSON CRUDO DESDE EL INPUT DE JAVASCRIPT
+            // RECIBIMOS EL JSON CRUDO DESDE EL INPUT DE JAVASCRIPT
             @RequestParam(required = false) String transaccionesJson,
             @AuthenticationPrincipal Usuario usuarioLogueado, // Tu entidad que implementa UserDetails
             Model model) {
 
         // 🛡️ OBTENEMOS EL ID O EMAIL REAL DEL USUARIO AUTENTICADO
-        // (Ajusta .getId().toString() o .getEmail() según cómo guardes el usuarioId en tu BD)
         String usuarioId = (usuarioLogueado != null) ? usuarioLogueado.getEmail() : "INVITADO";
 
         AnalisisInputDTO inputDTO;
@@ -73,18 +71,16 @@ public class WebAnalisisController {
         logger.info("👉 JSON RECIBIDO DE JS: {}", transaccionesJson);
         List<TransaccionItemDTO> listaTransaccionesManual = new ArrayList<>();
 
-        // Parsear el JSON de la tabla manual si viene presente
         if (transaccionesJson != null && !transaccionesJson.isBlank()) {
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                // Registra el módulo de fechas si usas LocalDate en tu DTO
                 mapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
 
                 listaTransaccionesManual = mapper.readValue(
                         transaccionesJson,
                         new com.fasterxml.jackson.core.type.TypeReference<>() {}
                 );
-                logger.info("✅ Transacciones parseadas con éxito: {}", listaTransaccionesManual.size()); //  NUEVO
+                logger.info("✅ Transacciones manuales parseadas con éxito: {}", listaTransaccionesManual.size());
             } catch (Exception e) {
                 logger.error("❌ ERROR AL PARSEAR JSON DE TRANSACCIONES: {}", e.getMessage(), e);
             }
@@ -93,22 +89,29 @@ public class WebAnalisisController {
         // Validar si el usuario cargó un archivo CSV
         if (file != null && !file.isEmpty()) {
             try {
-                List<TransaccionItemDTO> transaccionesDelCsv = parsearCsvTransacciones(file);
+                // 👇 USAMOS EL NUEVO MÉTODO QUE DEVUELVE LAS TRANSACCIONES Y EL INGRESO CALCULADO
+                saludfinanciera.finanzas.dto.response.CsvParseResult resultadoCsv = csvParserService.parsearTransaccionesConIngresos(file);
+
+                // Si el ingreso manual no fue provisto o es cero, usamos el calculado automáticamente del CSV
+                BigDecimal ingresoFinal = (ingresoMensual != null && ingresoMensual.compareTo(BigDecimal.ZERO) > 0)
+                        ? ingresoMensual
+                        : resultadoCsv.ingresoTotalCalculado();
+
                 inputDTO = new AnalisisInputDTO(
-                        ingresoMensual != null ? ingresoMensual.doubleValue() : 0.0,
+                        ingresoFinal.doubleValue(),
                         fondoEmergencia != null ? fondoEmergencia.doubleValue() : 0.0,
                         totalDeudas != null ? totalDeudas.intValue() : 0,
                         frecuenciaAhorro != null ? frecuenciaAhorro : "MENSUAL",
                         "Análisis financiero masivo desde archivo CSV",
                         objetivoPresupuesto != null ? objetivoPresupuesto.doubleValue() : 0.0,
-                        transaccionesDelCsv
+                        resultadoCsv.transacciones()
                 );
             } catch (Exception e) {
                 model.addAttribute("error", "Error al procesar el archivo CSV: %s".formatted(e.getMessage()));
                 return "nuevo-analisis";
             }
         } else {
-            // Lógica manual con las transacciones parseadas perfectamente desde el JSON
+            // Lógica manual con las transacciones parseadas desde el JSON
             inputDTO = new AnalisisInputDTO(
                     ingresoMensual != null ? ingresoMensual.doubleValue() : 0.0,
                     fondoEmergencia != null ? fondoEmergencia.doubleValue() : 0.0,
@@ -125,7 +128,7 @@ public class WebAnalisisController {
 
         try {
             AnalisisFinanciero analisis = AnalisisFinanciero.builder()
-                    .usuarioId(usuarioId) //  AQUÍ USAMOS LA VARIABLE DINÁMICA EN LUGAR DE "USR-1001"
+                    .usuarioId(usuarioId)
                     .ingresoMensual(inputDTO.ingresoMensual())
                     .nivelEndeudamiento(inputDTO.nivelEndeudamiento())
                     .frecuenciaAhorro(inputDTO.frecuenciaAhorro())
@@ -145,7 +148,7 @@ public class WebAnalisisController {
                 Set<String> recomendacionesUnicas = resultadoAnalisis.recomendaciones().stream()
                         .filter(r -> r != null && !r.isBlank())
                         .map(String::trim)
-                        .collect(Collectors.toSet()); // Esto elimina cualquier duplicado automáticamente
+                        .collect(Collectors.toSet());
                 analisis.setRecomendaciones(recomendacionesUnicas);
             }
 
@@ -169,48 +172,7 @@ public class WebAnalisisController {
         return "resultado-analisis";
     }
 
-    // Forma auxiliar para parsear el CSV usando TransaccionItemDTO
-    private List<TransaccionItemDTO> parsearCsvTransacciones(MultipartFile file) {
-        List<TransaccionItemDTO> transacciones = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
-            String linea;
-            boolean primeraLinea = true;
-
-            while ((linea = reader.readLine()) != null) {
-                if (linea.isBlank()) continue;
-
-                if (primeraLinea && (linea.toLowerCase().contains("descripcion") || linea.toLowerCase().contains("monto"))) {
-                    primeraLinea = false;
-                    continue;
-                }
-                primeraLinea = false;
-
-                String[] partes = linea.split(",");
-                if (partes.length >= 3) {
-                    String descripcion = partes[0].trim();
-                    BigDecimal monto = new BigDecimal(partes[1].trim());
-                    String tipo = partes[2].trim().toUpperCase();
-                    String categoria = partes.length > 3 ? partes[3].trim() : "OTROS";
-
-                    TransaccionItemDTO transaccion = new TransaccionItemDTO(
-                            LocalDate.now(),
-                            descripcion,
-                            monto,
-                            categoria
-                    );
-
-                    transacciones.add(transaccion);
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("No se pudo leer el formato del archivo CSV: %s".formatted(e.getMessage()), e);
-        }
-
-        return transacciones;
-    }
-
-    // Forma auxiliar opcional para determinar el valor objetivo
+    // funcion auxiliar para determinar el valor objetivo
     private Double valorMetaOInversion(BigDecimal inversion, BigDecimal objetivo) {
         if (objetivo != null) return objetivo.doubleValue();
         if (inversion != null) return inversion.doubleValue();

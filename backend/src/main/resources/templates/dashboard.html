@@ -1,35 +1,112 @@
 <!DOCTYPE html>
-<html xmlns:th="https://www.thymeleaf.org"
-      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<html lang="es" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{layout :: layout('FinanceAI - Panel de Control', ~{::content})}">
 <head>
-    <title>Dashboard - Hackathon Finanzas</title>
+    <meta charset="UTF-8">
+    <title>FinanceAI - Dashboard</title>
 </head>
 <body>
-<section>
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="mb-4">Panel de Control / Dashboard</h1>
-                <div class="alert alert-success" role="alert">
-                    ¡Has iniciado sesión y entrado al sistema correctamente!
-                </div>
+
+<div th:fragment="content" class="space-y-6">
+
+    <!-- Encabezado de Bienvenida -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">¡Hola de nuevo! 👋</h1>
+            <p class="text-slate-500 text-sm mt-1">Aquí tienes un resumen general del estado de tus finanzas y la actividad reciente.</p>
+        </div>
+        <div>
+            <a th:href="@{/analisis}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition shadow-sm">
+                <span>✨ Nuevo Análisis</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Métricas / KPIs (Grid Superior) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Tarjeta 1: Estado del Perfil -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between text-slate-400">
+                <span class="text-xs font-semibold uppercase tracking-wider">Perfil Financiero</span>
+                <span class="p-2 bg-indigo-50 text-indigo-600 rounded-xl text-base">📊</span>
+            </div>
+            <div class="text-xl font-bold text-slate-800" th:text="${perfilFinanciero}">Sin analizar</div>
+            <p class="text-xs text-slate-500">Último reporte generado con IA</p>
+        </div>
+
+        <!-- Tarjeta 2: Capacidad de Ahorro -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between text-slate-400">
+                <span class="text-xs font-semibold uppercase tracking-wider">Ahorro Estimado</span>
+                <span class="p-2 bg-emerald-50 text-emerald-600 rounded-xl text-base">💰</span>
+            </div>
+            <div class="text-xl font-bold text-emerald-600" th:text="${'$' + #numbers.formatDecimal(capacidadAhorro, 1, 'DEFAULT', 2, 'DEFAULT')}">$0.00</div>
+            <p class="text-xs text-slate-500">Proyección mensual calculada</p>
+        </div>
+
+        <!-- Tarjeta 3: Consultas Realizadas -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between text-slate-400">
+                <span class="text-xs font-semibold uppercase tracking-wider">Asistente IA</span>
+                <span class="p-2 bg-purple-50 text-purple-600 rounded-xl text-base">🤖</span>
+            </div>
+            <div class="text-xl font-bold text-purple-600">Disponible</div>
+            <p class="text-xs text-slate-500">Listo para resolver dudas</p>
+        </div>
+    </div>
+
+    <!-- Sección de Actividad Reciente y Gamificación -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Columna Principal: Historial resumido de transacciones -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-base font-bold text-slate-800">Últimos Movimientos Analizados</h2>
+                <a th:href="@{/historial}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">Ver todo →</a>
+            </div>
+
+            <!-- Si hay movimientos en la base de datos -->
+            <div th:if="${ultimosMovimientos != null and !ultimosMovimientos.empty}" class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                    <tr class="border-b border-slate-100 text-xs text-slate-400 uppercase">
+                        <th class="pb-3 font-medium">Descripción</th>
+                        <th class="pb-3 font-medium text-right">Monto</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="mov : ${ultimosMovimientos}" class="border-b border-slate-50">
+                        <td class="py-3 text-slate-700" th:text="${mov.descripcion}">Descripción de gasto</td>
+                        <td class="py-3 text-right font-medium text-slate-800" th:text="${'$' + #numbers.formatDecimal(mov.monto, 1, 'DEFAULT', 2, 'DEFAULT')}">$0.00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Si está vacío -->
+            <div th:if="${ultimosMovimientos == null or ultimosMovimientos.empty}" class="border border-slate-100 rounded-xl p-8 text-center text-slate-400 text-sm">
+                No hay análisis recientes registrados en esta sesión. <br>
+                <a th:href="@{/analisis}" class="text-indigo-600 font-medium underline mt-1 inline-block">Comienza tu primer análisis ahora</a>
             </div>
         </div>
 
-        <!-- Sección de Acciones Rápidas -->
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Análisis Financiero</h5>
-                        <p class="card-text">Ingresa tus datos financieros o transacciones para procesarlos con el modelo de IA.</p>
-                        <a th:href="@{/analisis}" class="btn btn-primary">Ir a Ingresar Datos</a>
-                    </div>
-                </div>
+        <!-- Columna Derecha: Tarjeta de Tips / Gamificación -->
+        <div class="bg-gradient-to-br from-indigo-900 to-slate-900 p-6 rounded-2xl text-white space-y-4 shadow-sm flex flex-col justify-between">
+            <div class="space-y-2">
+                <span class="inline-block px-2.5 py-1 bg-indigo-800/60 text-indigo-200 text-xs font-semibold rounded-full">💡 Consejo del día</span>
+                <h3 class="font-bold text-lg">Optimiza tus metas</h3>
+                <p class="text-xs text-indigo-200 leading-relaxed">
+                    Mantener un fondo de emergencia equivalente a 3 meses de tus gastos fijos reduce drásticamente el estrés financiero ante imprevistos.
+                </p>
+            </div>
+            <div class="pt-4 border-t border-indigo-800/50 text-[11px] text-indigo-300">
+                FinanceAI Gamified Experience 🚀
             </div>
         </div>
+
     </div>
-    <div th:replace="~{fragments/footer :: app-footer}"></div>
-</section>
+
+</div>
+
 </body>
 </html>

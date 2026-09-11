@@ -52,10 +52,4 @@ public class WebAuthController {
             return "auth/login";
         }
     }
-
-    // 3. Mostrar la vista del Dashboard (¡Este era el que faltaba y causaba el error 500!)
-    @GetMapping("/dashboard")
-    public String mostrarDashboard(Model model) {
-        return "dashboard"; // Busca templates/dashboard.html
-    }
 }

@@ -19,4 +19,7 @@ public interface TransaccionRepository extends JpaRepository<Transaccion, Long> 
 
     // Devuelve todas las transacciones de un usuario que aún tienen analisis_id en null
     List<Transaccion> findByUsuarioIdAndAnalisisIsNull(String usuarioId);
+
+    // Trae los últimos 5 movimientos filtrados por el usuario autenticado
+    List<Transaccion> findTop5ByUsuarioIdOrderByIdDesc(String usuarioId);
 }

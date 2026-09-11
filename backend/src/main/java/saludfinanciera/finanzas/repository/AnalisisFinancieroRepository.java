@@ -23,4 +23,7 @@ public interface AnalisisFinancieroRepository extends JpaRepository<AnalisisFina
     // Nueva forma para el detalle con JOIN FETCH para evitar LazyException:
     @Query("SELECT a FROM AnalisisFinanciero a LEFT JOIN FETCH a.recomendaciones LEFT JOIN FETCH a.resumenGastos WHERE a.id = :id")
     Optional<AnalisisFinanciero> findByIdWithDetails(@Param("id") Long id);
+
+    // Trae los últimos 5 movimientos filtrados por el usuario autenticado
+    Optional<AnalisisFinanciero> findTopByUsuarioIdOrderByIdDesc(String usuarioId);
 }

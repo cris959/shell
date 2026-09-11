@@ -41,22 +41,21 @@ public class HistorialWebController {
             return "redirect:/login";
         }
 
-        // 🔍 Buscamos el usuario fresco de la base de datos para traer los datos recién guardados
         Usuario usuarioActualizado = usuarioRepository.findById(usuarioLogueado.getId())
                 .orElse(usuarioLogueado);
 
         String usuarioId = usuarioActualizado.getEmail();
 
         model.addAttribute("nombreUsuario", usuarioActualizado.getEmail());
-
-        //  Pasamos el usuario actualizado al modelo (esto refresca el input y el nivel de endeudamiento)
         model.addAttribute("usuario", usuarioActualizado);
 
+        // Usamos el email (String)
         List<AnalisisFinanciero> listaAnalisis = analisisFinancieroRepository.findByUsuarioIdWithRecomendaciones(usuarioId);
         model.addAttribute("listaAnalisis", listaAnalisis);
 
         return "historial";
     }
+
 
     @GetMapping("/historial/detalle/{id}")
     @Transactional
