@@ -98,14 +98,14 @@
                             <input type="checkbox" class="form-check-input" id="recuerdame">
                             <label class="form-check-label small text-muted" for="recuerdame">Recuérdame</label>
                         </div>
-                        <a href="#" class="small text-decoration-none">¿Olvidaste tu contraseña?</a>
+                        <a th:href="@{/recuperar-password}" class="small text-decoration-none">¿Olvidaste tu contraseña?</a>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Iniciar Sesión</button>
                 </form>
 
                 <div class="text-center mt-4">
-                    <p class="small text-muted">¿No tienes una cuenta? <a href="/registro" class="text-decoration-none fw-semibold">Crea tu cuenta</a></p>
+                    <p class="small text-muted">¿No tienes una cuenta? <a th:href="@{/registro}" class="text-decoration-none fw-semibold">Crea tu cuenta</a></p>
                 </div>
             </div>
         </div>

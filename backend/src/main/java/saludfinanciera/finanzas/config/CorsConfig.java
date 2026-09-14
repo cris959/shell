@@ -15,11 +15,11 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**") // Aplica a TODOS los endpoints de la API
-                        .allowedOrigins("*") // Permite llamadas desde cualquier frontend (en prod podés poner el dominio exacto)
+                        .allowedOriginPatterns("*") // Permite cualquier origen de forma compatible con credenciales
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH") // Métodos HTTP permitidos
-                        .allowedHeaders("*"); // Permite todos los headers (Content-Type, Authorization, etc.)
+                        .allowedHeaders("*") // Permite todos los headers (Content-Type, Authorization, etc.)
+                        .allowCredentials(true); // Permite el uso de credenciales/cookies
             }
         };
     }
-
-}
+}                   //  ** Ambivalente (Local y OCI) **  //

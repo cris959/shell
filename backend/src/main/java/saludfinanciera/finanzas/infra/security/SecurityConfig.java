@@ -72,13 +72,13 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .usernameParameter("email") // 👈 Clave para que reconozca tu input 'email'
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/dashboard", true)
-                        .permitAll()
-                )
+                      .loginPage("/login")
+                      .loginProcessingUrl("/login")
+                      .usernameParameter("email") // 👈 Clave para que reconozca tu input 'email'
+                      .passwordParameter("password")
+                      .defaultSuccessUrl("/dashboard", true)
+                      .permitAll()
+               )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .defaultSuccessUrl("/dashboard", true)
