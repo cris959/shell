@@ -11,7 +11,8 @@ public class AiClientService {
     // Puedes inyectar un RestClient configurado previamente o instanciarlo apuntando a tu microservicio Python (ej. http://localhost:8000)
     public AiClientService(RestClient.Builder restClientBuilder) {
         this.restClient = restClientBuilder
-                .baseUrl("http://localhost:8000") // URL donde corre tu app de Python
+// Uso en Local ** .baseUrl("http://localhost:8000") ** // URL donde corre tu app de Python
+                .baseUrl("http://python-nlp:8000")
                 .build();
     }
     public String consultarMicroservicioPython(String prompt, String emailUsuario) {
