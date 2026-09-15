@@ -17,7 +17,7 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("API Salud Financiera")
                         .version("1.0.0")
-                        .description("Documentación de endpoints para análisis financiero, procesamiento de CSV y transacciones.")
+                        .description("Documentación de endpoints para análisis financiero avanzado, procesamiento de transacciones, carga de CSV de forma manual y por archivo, asistencia impulsada por IA (OpenAI con Mistral como fallback) junto a plantillas de respuestas inteligentes, y soporte para arquitectura híbrida (RestController y Controller con vistas Thymeleaf). Aplicación desplegada en OCI (Oracle Cloud Infrastructure).")
                         .version("1.1 (AI-Enhanced)")
                         .contact(new Contact()
                                 .name("Equipo Backend-Cris959")
