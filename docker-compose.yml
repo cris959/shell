@@ -36,12 +36,17 @@ services:
     container_name: spring_backend
     ports:
       - "8008:8008"  # Tu máquina (8008) -> Contenedor (8008)
+    env_file:
+      - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/salud_financiera
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: secretpassword
       # OJO: Entre contenedores se usa el nombre del servicio de Docker y el puerto INTERNO (8000)
       PYTHON_NLP_SERVICE_URL: http://python-nlp:8000
+      # Agrega estas líneas para que lea las credenciales de Google
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     depends_on:
       postgres-db:
         condition: service_healthy
