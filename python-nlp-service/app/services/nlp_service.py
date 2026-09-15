@@ -152,8 +152,8 @@ def analizar_perfil_financiero(data: AnalisisInputDTO) -> AnalisisOutputDTO:
 # ==========================================
 def procesar_consulta_ai(data: ConsultaAiInputDTO) -> ConsultaAiOutputDTO:
     """
-    Versión híbrida: plantillas predefinidas dinámicas para temas comunes
-    y respaldo con IA para consultas complejas.
+    Versión híbrida: plantillas predefinidas dinámicas y más amigables
+    para temas comunes, con respaldo de IA para consultas complejas.
     """
     query_lower = data.query.lower()
     respuesta_texto = ""
@@ -167,65 +167,45 @@ def procesar_consulta_ai(data: ConsultaAiInputDTO) -> ConsultaAiOutputDTO:
     # AHORRO / METAS / OBJETIVOS
     if any(k in query_lower for k in ["ahorr", "meta", "objetivo", "3.000.000", "3 millones", "6 meses"]):
         respuesta_texto = (
-            f"¡Hola, {nombre_usuario}! Para llegar a 3.000.000 en 6 meses, necesitas ahorrar 500.000 por mes.\n\n"
-            "1. Genera ingresos extra: freelance o venta de cosas (+300.000).\n"
-            "2. Recorta gastos: cancela suscripciones y negocia servicios (+150.000).\n"
-            "3. Automatiza: transfiere el ahorro el mismo día que cobres.\n\n"
-            "¿Quieres ayuda con un plan semanal?"
+            f"¡Hola, {nombre_usuario}! Juntar 3.000.000 en 6 meses es una meta concreta: significa separar unos 500.000 al mes.\n\n"
+            "Para lograrlo sin sufrir, lo ideal es combinar un ingreso extra (como un trabajo freelance o vender algo que ya no uses), recortar gastos hormiga y automatizar el ahorro apenas cobres.\n\n"
+            "¿Quieres que armemos un plan semanal para que te resulte más fácil?"
         )
     # GASTOS / RECORTAR
     elif any(k in query_lower for k in ["gasto", "gastar", "recortar", "ahorrar gastos"]):
         respuesta_texto = (
-            f"¡Hola, {nombre_usuario}! Para reducir gastos y ahorrar más:\n\n"
-            "1. Cancela suscripciones que no uses (streaming, apps).\n"
-            "2. Negocia servicios (internet, seguros, teléfono).\n"
-            "3. Planifica comidas y compra al por mayor.\n\n"
-            "¿Quieres que revisemos tus gastos de vivienda o transporte?"
+            f"¡Hola, {nombre_usuario}! Para calmar un poco los gastos y retener más plata, podemos revisar esas suscripciones que casi ni miras, negociar tarifas de servicios y planificar mejor las compras.\n\n"
+            "¿Te gustaría que enfoquemos la lupa en tus gastos de comida o en servicios fijos?"
         )
     # INGRESOS / GANAR / EXTRA
     elif any(k in query_lower for k in ["ingreso", "ganar", "extra", "freelance", "trabajo"]):
         respuesta_texto = (
-            f"¡Hola, {nombre_usuario}! Para aumentar ingresos rápidamente:\n\n"
-            "1. Ofrece freelance con tus habilidades (diseño, programación).\n"
-            "2. Vende artículos que no uses (tecnología, ropa).\n"
-            "3. Busca horas extra o trabajos temporales.\n\n"
-            "¿Quieres ideas específicas para tu perfil?"
+            f"¡Hola, {nombre_usuario}! Si la idea es sumar entradas de dinero extra, lo más rápido suele ser ofrecer tus habilidades en formato freelance, vender ropa o tecnología que tengas sin usar, o buscar alguna changuita temporal.\n\n"
+            "¿De qué área o habilidad te gustaría que saquemos ideas?"
         )
     # INVERSIÓN / RENDIMIENTO / PLAZO FIJO
     elif any(k in query_lower for k in ["invertir", "inversión", "rendimiento", "plazo fijo", "interés"]):
         respuesta_texto = (
-            f"¡Hola, {nombre_usuario}! Para hacer rendir tu ahorro en 6 meses:\n\n"
-            "1. Usa cuentas de alta rentabilidad (2-3% anual).\n"
-            "2. Considera plazos fijos a 3-6 meses (4-5% anual).\n"
-            "3. Evita inversiones volátiles (acciones, cripto).\n\n"
-            "¿Quieres que comparemos opciones seguras?"
+            f"¡Hola, {nombre_usuario}! Para hacer rendir tus ahorros a mediano plazo sin exponerte a riesgos raros, las cuentas remuneradas o los plazos fijos cortos son buenas opciones para cuidar el valor de tu dinero.\n\n"
+            "¿Prefieres que veamos alternativas conservadoras y seguras?"
         )
     # PRESUPUESTO / PLAN / ORGANIZAR
     elif any(k in query_lower for k in ["presupuesto", "plan", "organizar", "tabla", "calcular"]):
         respuesta_texto = (
-            f"¡Hola, {nombre_usuario}! Para armar un presupuesto efectivo:\n\n"
-            "1. Registra todos tus ingresos y gastos semanales.\n"
-            "2. Asigna un límite a cada categoría (comida, transporte, ocio).\n"
-            "3. Revisa y ajusta cada viernes.\n\n"
-            "¿Quieres una plantilla de presupuesto semanal?"
+            f"¡Hola, {nombre_usuario}! Armar un presupuesto no tiene por qué ser un dolor de cabeza; se trata de saber exactamente a dónde va cada peso para vivir con más tranquilidad.\n\n"
+            "Conviene registrar los movimientos y poner topes sanos para la comida y el ocio. ¿Te paso una guía simple para ordenarte esta semana?"
         )
     # DEUDAS / PRÉSTAMOS
     elif any(k in query_lower for k in ["deuda", "préstamo", "tarjeta", "credito"]):
         respuesta_texto = (
-            f"¡Hola, {nombre_usuario}! Para reducir deudas rápidamente:\n\n"
-            "1. Prioriza la deuda con mayor interés (método avalanche).\n"
-            "2. Negocia tasas más bajas con tus acreedores.\n"
-            "3. Usa ingresos extra para abonos adicionales.\n\n"
-            "¿Quieres un plan de pago personalizado?"
+            f"¡Hola, {nombre_usuario}! Salir de las deudas agobia, pero con orden se puede avanzar rápido. Lo clave es atacar primero la que mayor interés tenga o negociar cuotas más cómodas, destinando cualquier extra que ingrese a bajar ese saldo.\n\n"
+            "¿Quieres que armemos una estrategia de pago?"
         )
     # EMERGENCIA / FONDO / RESERVA
     elif any(k in query_lower for k in ["emergencia", "fondo", "reserva", "imprevisto"]):
         respuesta_texto = (
-            f"¡Hola, {nombre_usuario}! Para armar un fondo de emergencia:\n\n"
-            "1. Apunta a 3-6 meses de gastos básicos.\n"
-            "2. Usa una cuenta separada de fácil acceso.\n"
-            "3. Automatiza transferencias mensuales pequeñas.\n\n"
-            "¿Quieres calcular cuánto necesitas para tu fondo?"
+            f"¡Hola, {nombre_usuario}! Tener un colchón para imprevistos te da una paz mental enorme. La idea es apuntar de a poco a juntar unos tres meses de tus gastos fijos en una cuenta separada que no toques para otra cosa.\n\n"
+            "¿Calculamos cuánto sería tu meta ideal para empezar?"
         )
     # ==========================================
     # FALLBACK CON IA (para consultas complejas no cubiertas)
@@ -235,21 +215,17 @@ def procesar_consulta_ai(data: ConsultaAiInputDTO) -> ConsultaAiOutputDTO:
         api_key = raw_key.strip() if raw_key else None
 
         fallback_generico = (
-            f"¡Hola, {nombre_usuario}! Cuéntame más sobre tu objetivo financiero.\n\n"
-            "Puedo ayudarte con:\n"
-            "1. Planes de ahorro personalizados.\n"
-            "2. Ideas para reducir gastos.\n"
-            "3. Estrategias para aumentar ingresos.\n\n"
-            "¿Qué te gustaría trabajar primero?"
+            f"¡Hola, {nombre_usuario}! Cuéntame un poco más sobre lo que buscas resolver hoy en tus finanzas.\n\n"
+            "Puedo darte una mano con planes de ahorro, ideas para recortar gastos o estrategias para generar más ingresos. ¿Por dónde empezamos?"
         )
 
         if api_key:
             try:
                 client = Groq(api_key=api_key)
                 system_prompt = (
-                    f"Responde saludando a {nombre_usuario} y usa SOLO 3-4 líneas de texto plano.\n"
-                    "Prohibido: tablas (|), títulos (#), negritas (**), emojis.\n"
-                    "Sé amigable y directo en PESOS argentinos. Máximo 200 caracteres."
+                    f"Responde saludando a {nombre_usuario} de forma muy natural y usa SOLO 3-4 líneas de texto plano.\n"
+                    "Prohibido: tablas (|), títulos (#), negritas (**), emojis, listas con números (1, 2, 3).\n"
+                    "Sé conversacional, amigable y directo en pesos argentinos. Máximo 200 caracteres."
                 )
 
                 chat_completion = client.chat.completions.create(
@@ -259,7 +235,7 @@ def procesar_consulta_ai(data: ConsultaAiInputDTO) -> ConsultaAiOutputDTO:
                     ],
                     model="llama-3.3-70b-versatile",
                     max_tokens=80,
-                    temperature=0.2
+                    temperature=0.3
                 )
 
                 respuesta_ia = chat_completion.choices[0].message.content.strip()

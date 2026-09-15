@@ -41,8 +41,7 @@ public class NlpDataClient {
                     .body(AnalisisOutputDTO.class);
         } catch (Exception e) {
             //  AGREGA ESTAS LÍNEAS PARA VER EL ERROR REAL EN LA CONSOLA
-            System.err.println("❌ ERROR EN CLIENTE REST DE PYTHON NLP:");
-            e.printStackTrace();
+            log.error("❌ Error en cliente REST de Python NLP al analizar perfil: {}", e.getMessage(), e);
             // FALLBACK TEMPORAL: Si Python no responde o no está disponible,
             // devolvemos un objeto Mock para no cortar el flujo de Spring Boot
             return new AnalisisOutputDTO(
