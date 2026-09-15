@@ -16,7 +16,7 @@ public class AsistenteWebController {
         this.aiClientService = aiClientService;
     }
 
-@PostMapping("/api/asistente/consultar") // <-- Cambiado a POST y alineado con la URL del fetch
+@PostMapping("/asistente/consultar") // <-- Cambiado a POST y alineado con la URL del fetch
 @ResponseBody
 public Map<String, String> consultarIA(@RequestBody Map<String, String> requestBody) {
 
