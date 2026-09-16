@@ -16,6 +16,7 @@ import saludfinanciera.finanzas.repository.AnalisisFinancieroRepository;
 import saludfinanciera.finanzas.repository.UsuarioRepository;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -34,23 +35,45 @@ public class HistorialWebController {
 
     @GetMapping("/historial")
     public String verHistorial(
-            @AuthenticationPrincipal Usuario usuarioLogueado,
+            Principal principal,
             Model model) {
 
-        if (usuarioLogueado == null) {
+        if (principal == null) {
             return "redirect:/login";
         }
 
-        Usuario usuarioActualizado = usuarioRepository.findById(usuarioLogueado.getId())
-                .orElse(usuarioLogueado);
+        String email;
+        String resolvedName = "Usuario Google";
 
-        String usuarioId = usuarioActualizado.getEmail();
+        // Extraemos el email y el nombre de forma segura con Pattern Matching
+        if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken) {
+            email = oauthToken.getPrincipal().getAttribute("email");
+            String googleName = oauthToken.getPrincipal().getAttribute("name");
+            if (googleName != null) {
+                resolvedName = googleName;
+            }
+        } else {
+            email = principal.getName();
+        }
+
+        // Creamos una constante efectivamente final para usarla dentro de la lambda
+        final String finalName = resolvedName;
+
+        // Buscamos al usuario en la BD, si no existe lo auto-registramos
+        Usuario usuarioActualizado = usuarioRepository.findByEmail(email).orElseGet(() -> {
+            Usuario nuevo = new Usuario();
+            nuevo.setEmail(email);
+            nuevo.setNombre(finalName);
+            nuevo.setActivo(true);
+            nuevo.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("OAUTH2_USER_SECURE"));
+            return usuarioRepository.save(nuevo);
+        });
 
         model.addAttribute("nombreUsuario", usuarioActualizado.getEmail());
         model.addAttribute("usuario", usuarioActualizado);
 
-        // Usamos el email (String)
-        List<AnalisisFinanciero> listaAnalisis = analisisFinancieroRepository.findByUsuarioIdWithRecomendaciones(usuarioId);
+        // Usamos el email para buscar su historial de análisis
+        List<AnalisisFinanciero> listaAnalisis = analisisFinancieroRepository.findByUsuarioIdWithRecomendaciones(usuarioActualizado.getEmail());
         model.addAttribute("listaAnalisis", listaAnalisis);
 
         return "historial";

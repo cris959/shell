@@ -87,13 +87,14 @@ public class Usuario implements UserDetails, org.springframework.security.oauth2
         return calculo.intValue();
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (perfil == null || perfil.getNombre() == null) {
-            return List.of();
-        }
-        return List.of(new SimpleGrantedAuthority(perfil.getNombre().name()));
+@Override
+public Collection<? extends GrantedAuthority> getAuthorities() {
+    if (perfil == null || perfil.getNombre() == null) {
+        // Si no tiene perfil asignado (ej. usuarios de Google), les damos un rol por defecto
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
+    return List.of(new SimpleGrantedAuthority(perfil.getNombre().name()));
+}
 
     @Override
     public String getUsername() {
