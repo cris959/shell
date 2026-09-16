@@ -130,6 +130,7 @@ public class SecurityConfig {
                 nuevo.setActivo(true);
                 nuevo.setPassword(new BCryptPasswordEncoder().encode("OAUTH2_USER_SECURE"));
                 log.info("Nuevo usuario registrado automáticamente en la BD: {}", email);
+                System.out.println(" >>> DEBUG: Creando nuevo usuario en BD para: " + email);
                 return usuarioRepository.save(nuevo);
             });
 
