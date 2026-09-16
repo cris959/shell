@@ -55,10 +55,10 @@ public class PaginaWebController {
     public String verDashboard(Model model, Principal principal) {
         if (principal != null) {
             String email = principal.getName();
-            Usuario usuario = (Usuario) usuarioRepository.findByEmail(email).orElse(null);
+            Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
 
             if (usuario != null) {
-                // Usamos el email (String) para ambas consultas
+                // Como tus repositorios esperan un String (el email), pasamos usuario.getEmail()
                 AnalisisFinanciero ultimoAnalisis = analisisRepository.findTopByUsuarioIdOrderByIdDesc(usuario.getEmail()).orElse(null);
                 List<Transaccion> ultimosMovimientos = transaccionRepository.findTop5ByUsuarioIdOrderByIdDesc(usuario.getEmail());
 
@@ -71,6 +71,7 @@ public class PaginaWebController {
                 }
 
                 model.addAttribute("ultimosMovimientos", ultimosMovimientos);
+                model.addAttribute("usuario", usuario);
             }
         }
         return "dashboard";

@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Entity(name = "Usuario")
 @Getter
@@ -23,7 +24,7 @@ import java.util.List;
 @Table(name = "usuarios")
 @SQLDelete(sql = "UPDATE usuarios SET activo = false WHERE id = ?")
 @SQLRestriction("activo = true")
-public class Usuario implements UserDetails {
+public class Usuario implements UserDetails, org.springframework.security.oauth2.core.user.OAuth2User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,6 +58,21 @@ public class Usuario implements UserDetails {
 
     private String frecuenciaAhorro; // Ej: "Semanal", "Quincenal", "Mensual"
 
+    // nuenvos metodos para google //
+    // Guarda los atributos de OAuth2 de forma transitoria si los necesitas
+    @Transient
+    private Map<String, Object> attributes;
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return this.attributes;
+    }
+
+    @Override
+    public String getName() {
+        return this.email; // O el identificador principal
+    }
+    // nuenvos metodos para google //
 
     // Funcion calculado para Thymeleaf (Devuelve un int o BigDecimal con el porcentaje)
     public int getNivelEndeudamiento() {

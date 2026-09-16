@@ -114,36 +114,27 @@ public class SecurityConfig {
         return request -> {
             OAuth2User oauth2User = delegate.loadUser(request);
 
-            // 1. Extraer los datos reales que vienen de Google
             String email = oauth2User.getAttribute("email");
             String name = oauth2User.getAttribute("name");
 
             log.info("Google Login exitoso - Email: {}, Nombre: {}", email, name);
 
-            // 2. Buscar si el usuario ya existe en la base de datos
-            Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
-
-            if (usuario == null) {
-                // 3. Si no existe, lo creamos automáticamente como un usuario nuevo
-                usuario = new Usuario();
-                usuario.setEmail(email);
-                usuario.setNombre(name != null ? name : "Usuario Google");
-                usuario.setActivo(true);
-                // Como entra por Google, le asignamos una contraseña aleatoria/vacía encriptada
-                usuario.setPassword(new BCryptPasswordEncoder().encode("OAUTH2_USER_SECURE"));
-
-                usuarioRepository.save(usuario);
+            // Buscar o registrar automáticamente
+            Usuario usuario = usuarioRepository.findByEmail(email).orElseGet(() -> {
+                Usuario nuevo = new Usuario();
+                nuevo.setEmail(email);
+                nuevo.setNombre(name != null ? name : "Usuario Google");
+                nuevo.setActivo(true);
+                nuevo.setPassword(new BCryptPasswordEncoder().encode("OAUTH2_USER_SECURE"));
                 log.info("Nuevo usuario registrado automáticamente en la BD: {}", email);
-            } else {
-                log.info("Usuario existente encontrado en la BD: {}", email);
-            }
+                return usuarioRepository.save(nuevo);
+            });
 
-            // 4. Retornar el usuario asegurando que el identificador principal sea el "email"
-            return new org.springframework.security.oauth2.core.user.DefaultOAuth2User(
-                    oauth2User.getAuthorities(),
-                    oauth2User.getAttributes(),
-                    "email"
-            );
+            // Opcional: inyectar los atributos si tu entidad los necesita
+            usuario.setAttributes(oauth2User.getAttributes());
+
+            // Retornamos directamente nuestra entidad Usuario (que ya es UserDetails y OAuth2User)
+            return usuario;
         };
     }
 }
