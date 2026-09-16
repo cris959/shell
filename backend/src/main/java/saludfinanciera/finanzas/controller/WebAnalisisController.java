@@ -3,7 +3,8 @@ package saludfinanciera.finanzas.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +18,11 @@ import saludfinanciera.finanzas.dto.response.AnalisisOutputDTO;
 import saludfinanciera.finanzas.model.AnalisisFinanciero;
 import saludfinanciera.finanzas.model.Usuario;
 import saludfinanciera.finanzas.repository.AnalisisFinancieroRepository;
+import saludfinanciera.finanzas.repository.UsuarioRepository;
 import saludfinanciera.finanzas.service.CsvParserService;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,11 +35,13 @@ public class WebAnalisisController {
     private final NlpDataClient nlpDataClient;
     private final AnalisisFinancieroRepository analisisFinancieroRepository;
     private final CsvParserService csvParserService;
+    private final UsuarioRepository usuarioRepository;
 
-    public WebAnalisisController(NlpDataClient nlpDataClient, AnalisisFinancieroRepository analisisFinancieroRepository, CsvParserService csvParserService) {
+    public WebAnalisisController(NlpDataClient nlpDataClient, AnalisisFinancieroRepository analisisFinancieroRepository, CsvParserService csvParserService, UsuarioRepository usuarioRepository) {
         this.nlpDataClient = nlpDataClient;
         this.analisisFinancieroRepository = analisisFinancieroRepository;
         this.csvParserService = csvParserService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     // 1. Mostrar la vista del formulario de análisis
@@ -59,11 +64,42 @@ public class WebAnalisisController {
             @RequestParam(required = false) MultipartFile file,
             // RECIBIMOS EL JSON CRUDO DESDE EL INPUT DE JAVASCRIPT
             @RequestParam(required = false) String transaccionesJson,
-            @AuthenticationPrincipal Usuario usuarioLogueado, // Tu entidad que implementa UserDetails
+            // 🛡️ CAMBIADO A PRINCIPAL PARA SOPORTAR GOOGLE OAUTH2 Y LOGIN TRADICIONAL
+            Principal principal,
             Model model) {
 
-        // 🛡️ OBTENEMOS EL ID O EMAIL REAL DEL USUARIO AUTENTICADO
-        String usuarioId = (usuarioLogueado != null) ? usuarioLogueado.getEmail() : "INVITADO";
+        // 🛡️ OBTENEMOS EL EMAIL REAL DEL USUARIO AUTENTICADO DE FORMA SEGURA
+        String usuarioId = "INVITADO";
+        String resolvedName = "Usuario Google";
+
+        if (principal != null) {
+            if (principal instanceof OAuth2AuthenticationToken oauthToken) {
+                usuarioId = oauthToken.getPrincipal().getAttribute("email");
+                String googleName = oauthToken.getPrincipal().getAttribute("name");
+                if (googleName != null) {
+                    resolvedName = googleName;
+                }
+            } else {
+                usuarioId = principal.getName();
+            }
+        }
+
+        // 🛡️ AUTO-REGISTRO DEFENSIVO: Si el usuario está autenticado pero no existe en la BD, lo creamos al vuelo
+        if (!"INVITADO".equals(usuarioId)) {
+            final String finalUsuarioId = usuarioId; // 👈 Constante efectivamente final para la lambda
+            final String finalName = resolvedName;
+
+            usuarioRepository.findByEmail(finalUsuarioId).orElseGet(() -> {
+                Usuario nuevo = new Usuario();
+                nuevo.setEmail(finalUsuarioId);
+                nuevo.setNombre(finalName);
+                nuevo.setActivo(true);
+                nuevo.setPassword(new BCryptPasswordEncoder().encode("OAUTH2_USER_SECURE"));
+                logger.info(" >>> AUTO-REGISTRO DESDE PROCESAR ANALISIS: {}", finalUsuarioId);
+                return usuarioRepository.save(nuevo);
+            });
+        }
+
 
         AnalisisInputDTO inputDTO;
 
@@ -128,7 +164,7 @@ public class WebAnalisisController {
 
         try {
             AnalisisFinanciero analisis = AnalisisFinanciero.builder()
-                    .usuarioId(usuarioId)
+                    .usuarioId(usuarioId) // 👈 Ahora guardará correctamente el email del usuario de Google
                     .ingresoMensual(inputDTO.ingresoMensual())
                     .nivelEndeudamiento(inputDTO.nivelEndeudamiento())
                     .frecuenciaAhorro(inputDTO.frecuenciaAhorro())
@@ -163,9 +199,10 @@ public class WebAnalisisController {
             }
 
             analisisFinancieroRepository.save(analisis);
+            logger.info("✅ Análisis financiero guardado exitosamente para el usuario: {}", usuarioId);
 
         } catch (Exception e) {
-            logger.error("No se pudo guardar el análisis en la base de datos: {}", e.getMessage(), e);
+            logger.error("❌ No se pudo guardar el análisis en la base de datos: {}", e.getMessage(), e);
         }
 
         model.addAttribute("resultado", resultadoAnalisis);
