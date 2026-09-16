@@ -12,6 +12,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -82,6 +86,9 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
                         .defaultSuccessUrl("/dashboard", true)
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(this.oauth2UserService()) // 👈 Mapeo personalizado para Google
+                       )
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -90,5 +97,24 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    /**
+     * Servicio para capturar y procesar los atributos que envía Google al iniciar sesión
+     */
+    private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
+        DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
+        return request -> {
+            OAuth2User oauth2User = delegate.loadUser(request);
+
+            // Aquí puedes extraer los datos reales que vienen de Google
+            String email = oauth2User.getAttribute("email");
+            String name = oauth2User.getAttribute("name");
+
+            // Si necesitas registrar el usuario en tu BD de forma automática con OAuth2,
+            // este es el lugar ideal para hacerlo.
+
+            return oauth2User;
+        };
     }
 }
