@@ -1,5 +1,6 @@
 package saludfinanciera.finanzas.controller;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,25 +55,45 @@ public class PaginaWebController {
     @GetMapping("/dashboard")
     public String verDashboard(Model model, Principal principal) {
         if (principal != null) {
-            String email = principal.getName();
-            Usuario usuario = usuarioRepository.findByEmail(email).orElse(null);
+            String email;
+            String name = "Usuario Google";
 
-            if (usuario != null) {
-                // Como tus repositorios esperan un String (el email), pasamos usuario.getEmail()
-                AnalisisFinanciero ultimoAnalisis = analisisRepository.findTopByUsuarioIdOrderByIdDesc(usuario.getEmail()).orElse(null);
-                List<Transaccion> ultimosMovimientos = transaccionRepository.findTop5ByUsuarioIdOrderByIdDesc(usuario.getEmail());
-
-                if (ultimoAnalisis != null) {
-                    model.addAttribute("perfilFinanciero", ultimoAnalisis.getPerfilFinanciero());
-                    model.addAttribute("capacidadAhorro", ultimoAnalisis.getCapacidadAhorroMensual());
-                } else {
-                    model.addAttribute("perfilFinanciero", "Sin analizar");
-                    model.addAttribute("capacidadAhorro", 0.0);
-                }
-
-                model.addAttribute("ultimosMovimientos", ultimosMovimientos);
-                model.addAttribute("usuario", usuario);
+            // Extraemos el email dependiendo de si entra por OAuth2 o Login tradicional
+            if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken) {
+                email = oauthToken.getPrincipal().getAttribute("email");
+                name = oauthToken.getPrincipal().getAttribute("name");
+            } else {
+                email = principal.getName();
             }
+
+            // Determinamos el nombre de manera segura para la lambda
+            String finalName = (name != null) ? name : "Usuario Google";
+
+            // Buscamos al usuario, si no existe lo creamos al vuelo
+            Usuario usuario = usuarioRepository.findByEmail(email).orElseGet(() -> {
+                Usuario nuevo = new Usuario();
+                nuevo.setEmail(email);
+                nuevo.setNombre(finalName); // Usamos la variable efectivamente final
+                nuevo.setActivo(true);
+                nuevo.setPassword(new BCryptPasswordEncoder().encode("OAUTH2_USER_SECURE"));
+                System.out.printf(" >>> AUTO-REGISTRO DESDE DASHBOARD: %s%n", email);
+                return usuarioRepository.save(nuevo);
+            });
+
+            // Consultas financieras usando el email
+            AnalisisFinanciero ultimoAnalisis = analisisRepository.findTopByUsuarioIdOrderByIdDesc(usuario.getEmail()).orElse(null);
+            List<Transaccion> ultimosMovimientos = transaccionRepository.findTop5ByUsuarioIdOrderByIdDesc(usuario.getEmail());
+
+            if (ultimoAnalisis != null) {
+                model.addAttribute("perfilFinanciero", ultimoAnalisis.getPerfilFinanciero());
+                model.addAttribute("capacidadAhorro", ultimoAnalisis.getCapacidadAhorroMensual());
+            } else {
+                model.addAttribute("perfilFinanciero", "Sin analizar");
+                model.addAttribute("capacidadAhorro", 0.0);
+            }
+
+            model.addAttribute("ultimosMovimientos", ultimosMovimientos);
+            model.addAttribute("usuario", usuario); // 👈 Esto inyectará el objeto real en Thymeleaf
         }
         return "dashboard";
     }
