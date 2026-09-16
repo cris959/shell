@@ -24,6 +24,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SecurityConfig.class);
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
@@ -107,14 +109,19 @@ public class SecurityConfig {
         return request -> {
             OAuth2User oauth2User = delegate.loadUser(request);
 
-            // Aquí puedes extraer los datos reales que vienen de Google
+            // Extraemos los atributos reales de Google
             String email = oauth2User.getAttribute("email");
             String name = oauth2User.getAttribute("name");
 
-            // Si necesitas registrar el usuario en tu BD de forma automática con OAuth2,
-            // este es el lugar ideal para hacerlo.
+            // Reemplazamos println por el sistema de logging estándar de Spring Boot
+            log.info("Google Login exitoso - Email: {}, Nombre: {}", email, name);
 
-            return oauth2User;
+            // Retornamos el usuario asegurando que el identificador principal sea el "email"
+            return new org.springframework.security.oauth2.core.user.DefaultOAuth2User(
+                    oauth2User.getAuthorities(),
+                    oauth2User.getAttributes(),
+                    "email" // 👈 Esto evita que tome valores genéricos como "usuario"
+            );
         };
     }
 }
