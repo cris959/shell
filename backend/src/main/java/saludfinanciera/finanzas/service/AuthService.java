@@ -82,4 +82,19 @@ public class AuthService {
         String token = jwtTokenProvider.generarToken(authentication);
         return new AuthResponse(token);
     }
+
+    public void registrarUsuarioWeb(Usuario usuario) {
+        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("El correo electrónico ya está registrado.");
+        }
+
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        usuario.setActivo(true);
+
+        // Si manejas perfiles/roles por defecto como en tu otro método, puedes asignarlo aquí también:
+        // Perfil perfilDefault = perfilRepository.findByNombre(PerfilNombre.ROLE_USER).orElse(...);
+        // usuario.setPerfil(perfilDefault);
+
+        usuarioRepository.save(usuario);
+    }
 }
