@@ -1,6 +1,5 @@
 package saludfinanciera.finanzas.controller;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,16 +83,27 @@ public class HistorialWebController {
     @Transactional
     public String verDetalleAnalisis(
             @PathVariable Long id,
-            @AuthenticationPrincipal Usuario usuarioLogueado,
+            Principal principal,
             Model model) {
 
-        // Usamos la consulta con JOIN FETCH
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        // Extraemos el email de forma segura para ambos tipos de autenticación
+        String usuarioIdActual;
+        if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken) {
+            usuarioIdActual = oauthToken.getPrincipal().getAttribute("email");
+        } else {
+            usuarioIdActual = principal.getName();
+        }
+
+        // Buscamos el análisis con los detalles
         AnalisisFinanciero analisis = analisisFinancieroRepository.findByIdWithDetails(id)
                 .orElseThrow(() -> new RuntimeException("Análisis financiero no encontrado con ID: %d".formatted(id)));
 
-        // (Opcional de seguridad) Verificar que el análisis pertenezca realmente al usuario logueado
-        String usuarioIdActual = (usuarioLogueado != null) ? usuarioLogueado.getEmail() : "";
-        if (!analisis.getUsuarioId().equals(usuarioIdActual)) {
+        // Validación de permisos robusta usando el email extraído
+        if (analisis.getUsuarioId() == null || !analisis.getUsuarioId().equalsIgnoreCase(usuarioIdActual)) {
             throw new RuntimeException("No tienes permisos para ver este análisis.");
         }
 
@@ -107,18 +117,25 @@ public class HistorialWebController {
 
     @PostMapping("/historial/actualizar-info")
     public String actualizarInformacionBasica(
-            @AuthenticationPrincipal Usuario usuarioLogueado,
+            Principal principal,
             @RequestParam String nombre,
             @RequestParam String email,
             @RequestParam(required = false) String passwordActual,
             @RequestParam(required = false) String passwordNueva,
             RedirectAttributes redirectAttributes) {
 
-        if (usuarioLogueado == null) {
+        if (principal == null) {
             return "redirect:/login";
         }
 
-        Usuario usuario = usuarioRepository.findById(usuarioLogueado.getId())
+        String emailActual;
+        if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken) {
+            emailActual = oauthToken.getPrincipal().getAttribute("email");
+        } else {
+            emailActual = principal.getName();
+        }
+
+        Usuario usuario = usuarioRepository.findByEmail(emailActual)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         usuario.setNombre(nombre);
@@ -144,13 +161,12 @@ public class HistorialWebController {
         usuarioRepository.save(usuario);
         redirectAttributes.addFlashAttribute("exito", "Información básica actualizada con éxito.");
         return "redirect:/historial";
-
     }
 
     @PostMapping("/historial/actualizar-financiero")
     @Transactional
     public String actualizarPerfilFinanciero(
-            @AuthenticationPrincipal Usuario usuarioLogueado,
+            Principal principal,
             @RequestParam(required = false) String ingresoMensual,
             @RequestParam(required = false) String valorTotalDeudas,
             @RequestParam(required = false) String pagoMensualDeuda,
@@ -158,7 +174,7 @@ public class HistorialWebController {
             @RequestParam(required = false) String frecuenciaAhorro,
             RedirectAttributes redirectAttributes) {
 
-        if (usuarioLogueado == null) {
+        if (principal == null) {
             return "redirect:/login";
         }
 
@@ -173,7 +189,14 @@ public class HistorialWebController {
             return "redirect:/historial";
         }
 
-        Usuario usuario = usuarioRepository.findById(usuarioLogueado.getId())
+        String emailActual;
+        if (principal instanceof org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken oauthToken) {
+            emailActual = oauthToken.getPrincipal().getAttribute("email");
+        } else {
+            emailActual = principal.getName();
+        }
+
+        Usuario usuario = usuarioRepository.findByEmail(emailActual)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         try {
